@@ -67,8 +67,15 @@ $wgMinimalPasswordLength = 0;
 $wgAuthRemoteuserAuthz = true;
 $wgAuthRemoteuserDomain = null;
 
-$wgAuthRemoteuserName = $_SERVER["AUTHENTICATE_CN"]; /* User's name */
-$wgAuthRemoteuserMail = $_SERVER["AUTHENTICATE_MAIL"]; /* User's Mail */
+/* User's name */
+$wgAuthRemoteuserName = isset( $_SERVER["AUTHENTICATE_CN"] )
+	? $_SERVER["AUTHENTICATE_CN"]
+	: '';
+
+/* User's Mail */
+$wgAuthRemoteuserMail = isset( $_SERVER["AUTHENTICATE_MAIL"] )
+	? $_SERVER["AUTHENTICATE_MAIL"]
+	: '';
 $wgAuthRemoteuserNotify = false; /* Do not send mail notifications */
 $wgAuthRemoteuserDomain = "NETBIOSDOMAIN"; /* Remove NETBIOSDOMAIN\ from the beginning or @NETBIOSDOMAIN at the end of a IWA username */
 /* User's mail domain to append to the user name to make their email address */
@@ -275,16 +282,14 @@ class Auth_remoteuser extends AuthPlugin {
 	function authenticate( $username, $password ) {
 		global $wgAuthRemoteuserAuthz, $wgAuthRemoteuserDomain;
 
-		if ( isset( $wgAuthRemoteuserAuthz ) && $wgAuthRemoteuserAuthz != true ) {
+		if ( isset( $wgAuthRemoteuserAuthz ) && !$wgAuthRemoteuserAuthz ) {
 			return false;
 		}
 
 		if ( !isset( $_SERVER['REMOTE_USER'] ) ) {
 			$_SERVER['REMOTE_USER'] = "";
 		}
-		if ( !isset( $_SERVER['REMOTE_USER'] ) ) {
-			return false;
-		}
+
 		if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) > 0 ) {
 			$usertest = str_replace( "$wgAuthRemoteuserDomain\\", "", $_SERVER['REMOTE_USER'] );
 			$usertest = str_replace( "@$wgAuthRemoteuserDomain", "", $usertest );
