@@ -35,14 +35,6 @@
 //
 // Add these lines to your LocalSettings.php
 //
-// /* Optional settings */
-// $wgAuthRemoteuserAuthz = true; /* Your own authorization test */
-// $wgAuthRemoteuserName = $_SERVER["AUTHENTICATE_CN"]; /* User's name */
-// $wgAuthRemoteuserMail = $_SERVER["AUTHENTICATE_MAIL"]; /* User's Mail */
-// $wgAuthRemoteuserNotify = false; /* Do not send mail notifications */
-// $wgAuthRemoteuserDomain = "NETBIOSDOMAIN"; /* Remove NETBIOSDOMAIN\ from the beginning or @NETBIOSDOMAIN at the end of a IWA username */
-// /* User's mail domain to append to the user name to make their email address */
-// $wgAuthRemoteuserMailDomain = "example.com";
 // // Don't let anonymous people do things...
 // $wgGroupPermissions['*']['createaccount']   = false;
 // $wgGroupPermissions['*']['read']            = false;
@@ -72,6 +64,18 @@ $wgExtensionCredits['other'][] = array(
 // We must allow zero length passwords. This extension does not work in MW 1.16 without this.
 $wgMinimalPasswordLength = 0;
 
+$wgAuthRemoteuserAuthz = true;
+$wgAuthRemoteuserDomain = null;
+
+$wgAuthRemoteuserName = $_SERVER["AUTHENTICATE_CN"]; /* User's name */
+$wgAuthRemoteuserMail = $_SERVER["AUTHENTICATE_MAIL"]; /* User's Mail */
+$wgAuthRemoteuserNotify = false; /* Do not send mail notifications */
+$wgAuthRemoteuserDomain = "NETBIOSDOMAIN"; /* Remove NETBIOSDOMAIN\ from the beginning or @NETBIOSDOMAIN at the end of a IWA username */
+/* User's mail domain to append to the user name to make their email address */
+$wgAuthRemoteuserMailDomain = "example.com";
+
+$wgExtensionFunctions[] = 'Auth_remote_user_hook';
+
 /**
  * This hook is registered by the Auth_remoteuser constructor.  It will be
  * called on every page load.  It serves the function of automatically logging
@@ -91,9 +95,7 @@ $wgMinimalPasswordLength = 0;
  * Note: If cookies are disabled, an infinite loop /might/ occur?
  */
 function Auth_remote_user_hook() {
-	global $wgUser;
-	global $wgRequest;
-	global $wgAuthRemoteuserDomain;
+	global $wgUser, $wgRequest, $wgAuthRemoteuserDomain;
 
 	// For a few special pages, don't do anything.
 	$title = $wgRequest->getVal( 'title' );
@@ -191,22 +193,6 @@ function Auth_remote_user_hook() {
 }
 
 class Auth_remoteuser extends AuthPlugin {
-
-	function __construct() {
-		// Register our hook function.  This hook will be executed on every page
-		// load.  Its purpose is to automatically log the user in, if necessary.
-		if ( isset( $_SERVER['REMOTE_USER'] ) && strlen( $_SERVER['REMOTE_USER'] ) ) {
-			global $wgExtensionFunctions;
-			if ( !isset( $wgExtensionFunctions ) ) {
-				$wgExtensionFunctions = array();
-			} else if ( !is_array( $wgExtensionFunctions ) ) {
-				$wgExtensionFunctions = array( $wgExtensionFunctions );
-			}
-			array_push( $wgExtensionFunctions, 'Auth_remote_user_hook' );
-		}
-		return;
-	}
-
 	/**
 	 * Disallow password change.
 	 *
