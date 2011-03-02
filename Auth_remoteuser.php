@@ -287,7 +287,7 @@ class Auth_remoteuser extends AuthPlugin {
 	 * @public
 	 */
 	function authenticate( $username, $password ) {
-		global $_SERVER, $wgAuthRemoteuserAuthz, $wgAuthRemoteuserDomain;
+		global $wgAuthRemoteuserAuthz, $wgAuthRemoteuserDomain;
 
 		if ( isset( $wgAuthRemoteuserAuthz ) && $wgAuthRemoteuserAuthz != true ) {
 			return false;
@@ -368,7 +368,7 @@ class Auth_remoteuser extends AuthPlugin {
 	 * @public
 	 */
 	function initUser( &$user ) {
-		global $_SERVER, $wgAuthRemoteuserName, $wgAuthRemoteuserMail, $wgAuthRemoteuserMailDomain,
+		global $wgAuthRemoteuserName, $wgAuthRemoteuserMail, $wgAuthRemoteuserMailDomain,
 			$wgAuthRemoteuserNotify, $wgAuthRemoteuserDomain;
 
 		if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) ) {
