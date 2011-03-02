@@ -63,7 +63,7 @@
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['other'][] = array(
 		'name' => 'AutomaticREMOTE USER',
-		'version' => '1.1.3',
+		'version' => '1.1.4',
 		'author' => array( 'Otheus Shelling', 'Rusty Burchfield', 'James Kinsman', 'Daniel Thomas', 'Ian Ward Comfort' ),
 		'url' => 'http://www.mediawiki.org/wiki/Extension:AutomaticREMOTE_USER',
 		'description' => 'Automatically logs users using the REMOTE_USER environment variable.',
@@ -71,10 +71,6 @@ $wgExtensionCredits['other'][] = array(
 
 // We must allow zero length passwords. This extension does not work in MW 1.16 without this.
 $wgMinimalPasswordLength = 0;
-
-// The Auth_remoteuser class is an AuthPlugin so make sure we have this
-// included.
-require_once( 'AuthPlugin.php' );
 
 /**
  * This hook is registered by the Auth_remoteuser constructor.  It will be
@@ -95,364 +91,352 @@ require_once( 'AuthPlugin.php' );
  * Note: If cookies are disabled, an infinite loop /might/ occur?
  */
 function Auth_remote_user_hook() {
-  global $wgUser;
-  global $wgRequest;
-  global $_REQUEST;
-  global $wgAuthRemoteuserDomain;
-
-  // For a few special pages, don't do anything.
-  $title = $wgRequest->getVal( 'title' );
-  if ( ( $title == Title::makeName( NS_SPECIAL, 'UserLogout' ) ) ||
-	  ( $title == Title::makeName( NS_SPECIAL, 'UserLogin' ) ) ) {
-	return;
-  }
-
-  // Process the username if required
-  if ( !isset( $_SERVER['REMOTE_USER'] ) )
-  {
-	return;
-  }
-  if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) )
-  {
-	$username = str_replace( "$wgAuthRemoteuserDomain\\", "", $_SERVER['REMOTE_USER'] );
-	$username = str_replace( "@$wgAuthRemoteuserDomain", "", $username );
-  } else {
-	$username = $_SERVER['REMOTE_USER'];
-  }
-
-  // Check for valid session
-  $user = User::newFromSession();
-  if ( !$user->isAnon() ) {
-	if ( $user->getName() == Auth_remoteuser::getCanonicalName( $username ) ) {
-	  return;            // Correct user is already logged in.
-	} else {
-	  $user->doLogout(); // Logout mismatched user.
-	}
-  }
-
-  // Copied from includes/SpecialUserlogin.php
-  if ( !isset( $wgCommandLineMode ) && !isset( $_COOKIE[session_name()] ) ) {
-	wfSetupSession();
-  }
-
-  // If the login form returns NEED_TOKEN try once more with the right token
-  $tryagain = false;
-  $trycount = 0;
-  $token = '';
-  do
-  {
-	$tryagain = false;
-	// Submit a fake login form to authenticate the user.
-	$params = new FauxRequest( array(
-		  'wpName' => $username,
-		  'wpPassword' => '',
-		  'wpDomain' => '',
-		  'wpLoginToken' => $token,
-		  'wpRemember' => ''
-		  ) );
-
-	// Authenticate user data will automatically create new users.
-	$loginForm = new LoginForm( $params );
-	$result = $loginForm->authenticateUserData();
-	switch ( $result ) {
-		  case LoginForm :: SUCCESS :
-			  $wgUser->setOption( 'rememberpassword', 1 );
-			  $wgUser->setCookies();
-			  break;
-		  case LoginForm :: NEED_TOKEN:
-			  $token = $loginForm->getLoginToken();
-			  $tryagain = ( $trycount == 0 );
-			  break;
-		  case LoginForm :: WRONG_TOKEN:
-			  $errormessage = 'WrongToken';
-			  break;
-		  case LoginForm :: NO_NAME :
-			  $errormessage = 'NoName';
-			  break;
-		  case LoginForm :: ILLEGAL :
-			  $errormessage = 'Illegal';
-			  break;
-		  case LoginForm :: WRONG_PLUGIN_PASS :
-			  $errormessage = 'WrongPluginPass';
-			  break;
-		  case LoginForm :: NOT_EXISTS :
-			  $errormessage = 'NotExists';
-			  break;
-		  case LoginForm :: WRONG_PASS :
-			  $errormessage = 'WrongPass';
-			  break;
-		  case LoginForm :: EMPTY_PASS :
-			  $errormessage = 'EmptyPass';
-			  break;
-		  default:
-			  $errormessage = 'Unknown';
-			  break;
-	}
-
-	if ( $result != LoginForm::SUCCESS && $result != LoginForm::NEED_TOKEN ) {
-	  error_log( 'Unexpected REMOTE_USER authentication failure. Login Error was:' . $errormessage );
-	}
-	$trycount++;
-  }
-  while ( $tryagain );
-
-  return;
-}
-
-class Auth_remoteuser extends AuthPlugin {
-
-  function Auth_remoteuser() {
-	// Register our hook function.  This hook will be executed on every page
-	// load.  Its purpose is to automatically log the user in, if necessary.
-	if ( isset( $_SERVER['REMOTE_USER'] ) && strlen( $_SERVER['REMOTE_USER'] ) ) {
-	  global $wgExtensionFunctions;
-	  if ( !isset( $wgExtensionFunctions ) ) {
-		$wgExtensionFunctions = array();
-	  }
-	  else if ( !is_array( $wgExtensionFunctions ) ) {
-		$wgExtensionFunctions = array( $wgExtensionFunctions );
-	  }
-	  array_push( $wgExtensionFunctions, 'Auth_remote_user_hook' );
-	}
-	return;
-  }
-
-  /**
-   * Disallow password change.
-   *
-   * @return bool
-   */
-  function allowPasswordChange() {
-	return false;
-  }
-
-  /**
-   * This should not be called because we do not allow password change.  Always
-   * fail by returning false.
-   *
-   * @param $user User object.
-   * @param $password String: password.
-   * @return bool
-   * @public
-   */
-  function setPassword( $user, $password ) {
-	return false;
-  }
-
-  /**
-   * We don't support this but we have to return true for preferences to save.
-   *
-   * @param $user User object.
-   * @return bool
-   * @public
-   */
-  function updateExternalDB( $user ) {
-	return true;
-  }
-
-  /**
-   * We can't create external accounts so return false.
-   *
-   * @return bool
-   * @public
-   */
-  function canCreateAccounts() {
-	return false;
-  }
-
-  /**
-   * We don't support adding users to whatever service provides REMOTE_USER, so
-   * fail by always returning false.
-   *
-   * @param User $user
-   * @param string $password
-   * @return bool
-   * @public
-   */
-  function addUser( $user, $password ) {
-	return false;
-  }
-
-  /**
-   * Pretend all users exist.  This is checked by authenticateUserData to
-   * determine if a user exists in our 'db'.  By returning true we tell it that
-   * it can create a local wiki user automatically.
-   *
-   * @param $username String: username.
-   * @return bool
-   * @public
-   */
-  function userExists( $username ) {
-	return true;
-  }
-
-  /**
-   * Check whether the given name matches REMOTE_USER.
-   * The name will be normalized to MediaWiki's requirements, so
-   * lower it and the REMOTE_USER before checking.
-   *
-   * @param $username String: username.
-   * @param $password String: user password.
-   * @return bool
-   * @public
-   */
-  function authenticate( $username, $password ) {
-	global $_SERVER;
-	global $wgAuthRemoteuserAuthz;
+	global $wgUser;
+	global $wgRequest;
+	global $_REQUEST;
 	global $wgAuthRemoteuserDomain;
 
-	if ( isset( $wgAuthRemoteuserAuthz ) && $wgAuthRemoteuserAuthz != true )
-	   return false;
-
-	if ( isset( $_SERVER['REMOTE_USER'] ) == false )
-	{
-		$_SERVER['REMOTE_USER'] = "";
-	}
-	if ( !isset( $_SERVER['REMOTE_USER'] ) )
-	{
-		return false;
-	}
-	if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) > 0 ) {
-		$usertest = str_replace( "$wgAuthRemoteuserDomain\\", "", $_SERVER['REMOTE_USER'] );
-		$usertest = str_replace( "@$wgAuthRemoteuserDomain", "", $usertest );
-	} else {
-		$usertest = $_SERVER['REMOTE_USER'];
+	// For a few special pages, don't do anything.
+	$title = $wgRequest->getVal( 'title' );
+	if ( ( $title == Title::makeName( NS_SPECIAL, 'UserLogout' ) ) ||
+		( $title == Title::makeName( NS_SPECIAL, 'UserLogin' ) ) ) {
+		return;
 	}
 
-	return ( strtolower( $username ) == strtolower( $usertest ) );
-  }
-
-  /**
-   * Check to see if the specific domain is a valid domain.
-   *
-   * @param $domain String: authentication domain.
-   * @return bool
-   * @public
-   */
-  function validDomain( $domain ) {
-	return true;
-  }
-
-  /**
-   * When a user logs in, optionally fill in preferences and such.
-   * For instance, you might pull the email address or real name from the
-   * external user database.
-   *
-   * The User object is passed by reference so it can be modified; don't
-   * forget the & on your function declaration.
-   *
-   * @param User $user
-   * @public
-   */
-  function updateUser( &$user ) {
-	// We only set this stuff when accounts are created.
-	return true;
-  }
-
-  /**
-   * Return true because the wiki should create a new local account
-   * automatically when asked to login a user who doesn't exist locally but
-   * does in the external auth database.
-   *
-   * @return bool
-   * @public
-   */
-  function autoCreate() {
-	return true;
-  }
-
-  /**
-   * Return true to prevent logins that don't authenticate here from being
-   * checked against the local database's password fields.
-   *
-   * @return bool
-   * @public
-   */
-  function strict() {
-	return true;
-  }
-
-  /**
-   * When creating a user account, optionally fill in preferences and such.
-   * For instance, you might pull the email address or real name from the
-   * external user database.
-   *
-   * @param $user User object.
-   * @public
-   */
-  function initUser( &$user ) {
-	global $_SERVER;
-	global $wgAuthRemoteuserName;
-	global $wgAuthRemoteuserMail;
-	global $wgAuthRemoteuserMailDomain;
-	global $wgAuthRemoteuserNotify;
-	global $wgAuthRemoteuserDomain;
-
-	if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) )
-	{
+	// Process the username if required
+	if ( !isset( $_SERVER['REMOTE_USER'] ) ) {
+		return;
+	}
+	if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) ) {
 		$username = str_replace( "$wgAuthRemoteuserDomain\\", "", $_SERVER['REMOTE_USER'] );
 		$username = str_replace( "@$wgAuthRemoteuserDomain", "", $username );
 	} else {
 		$username = $_SERVER['REMOTE_USER'];
 	}
 
-	if ( isset( $wgAuthRemoteuserName ) )
-	  $user->setRealName( $wgAuthRemoteuserName );
-	else
-	  $user->setRealName( '' );
-
-	if ( isset( $wgAuthRemoteuserMail ) )
-	  $user->setEmail( $wgAuthRemoteuserMail );
-	elseif ( isset( $wgAuthRemoteuserMailDomain ) )
-	  $user->setEmail( $username . '@' . $wgAuthRemoteuserMailDomain );
-	else
-	  $user->setEmail( $username . "@example.com" );
-
-	$user->mEmailAuthenticated = wfTimestampNow();
-	$user->setToken();
-
-	// turn on e-mail notifications
-	if ( isset( $wgAuthRemoteuserNotify ) && $wgAuthRemoteuserNotify ) {
-		$user->setOption( 'enotifwatchlistpages', 1 );
-		$user->setOption( 'enotifusertalkpages', 1 );
-		$user->setOption( 'enotifminoredits', 1 );
-		$user->setOption( 'enotifrevealaddr', 1 );
+	// Check for valid session
+	$user = User::newFromSession();
+	if ( !$user->isAnon() ) {
+		if ( $user->getName() == Auth_remoteuser::getCanonicalName( $username ) ) {
+			return;            // Correct user is already logged in.
+		} else {
+			$user->doLogout(); // Logout mismatched user.
+		}
 	}
 
-	$user->saveSettings();
-  }
+	// Copied from includes/SpecialUserlogin.php
+	if ( !isset( $wgCommandLineMode ) && !isset( $_COOKIE[session_name()] ) ) {
+		wfSetupSession();
+	}
 
-  /**
-   * Modify options in the login template.  This shouldn't be very important
-   * because no one should really be bothering with the login page.
-   *
-   * @param $template UserLoginTemplate object.
-   * @public
-   */
-  function modifyUITemplate( &$template ) {
-	// disable the mail new password box
-	$template->set( 'useemail', false );
-	// disable 'remember me' box
-	$template->set( 'remember', false );
-	$template->set( 'create', false );
-	$template->set( 'domain', false );
-	$template->set( 'usedomain', false );
-  }
+	// If the login form returns NEED_TOKEN try once more with the right token
+	$trycount = 0;
+	$token = '';
+	$errormessage = '';
+	do {
+		$tryagain = false;
+		// Submit a fake login form to authenticate the user.
+		$params = new FauxRequest( array(
+			'wpName' => $username,
+			'wpPassword' => '',
+			'wpDomain' => '',
+			'wpLoginToken' => $token,
+			'wpRemember' => ''
+			) );
 
-  /**
-   * Normalize user names to the MediaWiki standard to prevent duplicate
-   * accounts.
-   *
-   * @param $username String: username.
-   * @return string
-   * @public
-   */
-  function getCanonicalName( $username ) {
-	// lowercase the username
-	$username = strtolower( $username );
-	// uppercase first letter to make MediaWiki happy
-	$username = ucfirst( $username );
-	return $username;
-  }
+		// Authenticate user data will automatically create new users.
+		$loginForm = new LoginForm( $params );
+		$result = $loginForm->authenticateUserData();
+		switch ( $result ) {
+			case LoginForm :: SUCCESS :
+				$wgUser->setOption( 'rememberpassword', 1 );
+				$wgUser->setCookies();
+				break;
+			case LoginForm :: NEED_TOKEN:
+				$token = $loginForm->getLoginToken();
+				$tryagain = ( $trycount == 0 );
+				break;
+			case LoginForm :: WRONG_TOKEN:
+				$errormessage = 'WrongToken';
+				break;
+			case LoginForm :: NO_NAME :
+				$errormessage = 'NoName';
+				break;
+			case LoginForm :: ILLEGAL :
+				$errormessage = 'Illegal';
+				break;
+			case LoginForm :: WRONG_PLUGIN_PASS :
+				$errormessage = 'WrongPluginPass';
+				break;
+			case LoginForm :: NOT_EXISTS :
+				$errormessage = 'NotExists';
+				break;
+			case LoginForm :: WRONG_PASS :
+				$errormessage = 'WrongPass';
+				break;
+			case LoginForm :: EMPTY_PASS :
+				$errormessage = 'EmptyPass';
+				break;
+			default:
+				$errormessage = 'Unknown';
+				break;
+		}
+
+		if ( $result != LoginForm::SUCCESS && $result != LoginForm::NEED_TOKEN ) {
+			error_log( 'Unexpected REMOTE_USER authentication failure. Login Error was:' . $errormessage );
+		}
+		$trycount++;
+	} while ( $tryagain );
+
+	return;
+}
+
+class Auth_remoteuser extends AuthPlugin {
+
+	function __construct() {
+		// Register our hook function.  This hook will be executed on every page
+		// load.  Its purpose is to automatically log the user in, if necessary.
+		if ( isset( $_SERVER['REMOTE_USER'] ) && strlen( $_SERVER['REMOTE_USER'] ) ) {
+			global $wgExtensionFunctions;
+			if ( !isset( $wgExtensionFunctions ) ) {
+				$wgExtensionFunctions = array();
+			} else if ( !is_array( $wgExtensionFunctions ) ) {
+				$wgExtensionFunctions = array( $wgExtensionFunctions );
+			}
+			array_push( $wgExtensionFunctions, 'Auth_remote_user_hook' );
+		}
+		return;
+	}
+
+	/**
+	 * Disallow password change.
+	 *
+	 * @return bool
+	 */
+	function allowPasswordChange() {
+		return false;
+	}
+
+	/**
+	 * This should not be called because we do not allow password change.  Always
+	 * fail by returning false.
+	 *
+	 * @param $user User object.
+	 * @param $password String: password.
+	 * @return bool
+	 * @public
+	 */
+	function setPassword( $user, $password ) {
+		return false;
+	}
+
+	/**
+	 * We don't support this but we have to return true for preferences to save.
+	 *
+	 * @param $user User object.
+	 * @return bool
+	 * @public
+	 */
+	function updateExternalDB( $user ) {
+		return true;
+	}
+
+	/**
+	 * We can't create external accounts so return false.
+	 *
+	 * @return bool
+	 * @public
+	 */
+	function canCreateAccounts() {
+		return false;
+	}
+
+	/**
+	 * We don't support adding users to whatever service provides REMOTE_USER, so
+	 * fail by always returning false.
+	 *
+	 * @param User $user
+	 * @param string $password
+	 * @return bool
+	 * @public
+	 */
+	function addUser( $user, $password ) {
+		return false;
+	}
+
+	/**
+	 * Pretend all users exist.  This is checked by authenticateUserData to
+	 * determine if a user exists in our 'db'.  By returning true we tell it that
+	 * it can create a local wiki user automatically.
+	 *
+	 * @param $username String: username.
+	 * @return bool
+	 * @public
+	 */
+	function userExists( $username ) {
+		return true;
+	}
+
+	/**
+	 * Check whether the given name matches REMOTE_USER.
+	 * The name will be normalized to MediaWiki's requirements, so
+	 * lower it and the REMOTE_USER before checking.
+	 *
+	 * @param $username String: username.
+	 * @param $password String: user password.
+	 * @return bool
+	 * @public
+	 */
+	function authenticate( $username, $password ) {
+		global $_SERVER, $wgAuthRemoteuserAuthz, $wgAuthRemoteuserDomain;
+
+		if ( isset( $wgAuthRemoteuserAuthz ) && $wgAuthRemoteuserAuthz != true ) {
+			return false;
+		}
+
+		if ( !isset( $_SERVER['REMOTE_USER'] ) ) {
+			$_SERVER['REMOTE_USER'] = "";
+		}
+		if ( !isset( $_SERVER['REMOTE_USER'] ) ) {
+			return false;
+		}
+		if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) > 0 ) {
+			$usertest = str_replace( "$wgAuthRemoteuserDomain\\", "", $_SERVER['REMOTE_USER'] );
+			$usertest = str_replace( "@$wgAuthRemoteuserDomain", "", $usertest );
+		} else {
+			$usertest = $_SERVER['REMOTE_USER'];
+		}
+
+		return ( strtolower( $username ) == strtolower( $usertest ) );
+	}
+
+	/**
+	 * Check to see if the specific domain is a valid domain.
+	 *
+	 * @param $domain String: authentication domain.
+	 * @return bool
+	 * @public
+	 */
+	function validDomain( $domain ) {
+		return true;
+	}
+
+	/**
+	 * When a user logs in, optionally fill in preferences and such.
+	 * For instance, you might pull the email address or real name from the
+	 * external user database.
+	 *
+	 * The User object is passed by reference so it can be modified; don't
+	 * forget the & on your function declaration.
+	 *
+	 * @param User $user
+	 * @public
+	 */
+	function updateUser( &$user ) {
+		// We only set this stuff when accounts are created.
+		return true;
+	}
+
+	/**
+	 * Return true because the wiki should create a new local account
+	 * automatically when asked to login a user who doesn't exist locally but
+	 * does in the external auth database.
+	 *
+	 * @return bool
+	 * @public
+	 */
+	function autoCreate() {
+		return true;
+	}
+
+	/**
+	 * Return true to prevent logins that don't authenticate here from being
+	 * checked against the local database's password fields.
+	 *
+	 * @return bool
+	 * @public
+	 */
+	function strict() {
+		return true;
+	}
+
+	/**
+	 * When creating a user account, optionally fill in preferences and such.
+	 * For instance, you might pull the email address or real name from the
+	 * external user database.
+	 *
+	 * @param $user User object.
+	 * @public
+	 */
+	function initUser( &$user ) {
+		global $_SERVER, $wgAuthRemoteuserName, $wgAuthRemoteuserMail, $wgAuthRemoteuserMailDomain,
+			$wgAuthRemoteuserNotify, $wgAuthRemoteuserDomain;
+
+		if ( isset( $wgAuthRemoteuserDomain ) && strlen( $wgAuthRemoteuserDomain ) ) {
+			$username = str_replace( "$wgAuthRemoteuserDomain\\", "", $_SERVER['REMOTE_USER'] );
+			$username = str_replace( "@$wgAuthRemoteuserDomain", "", $username );
+		} else {
+			$username = $_SERVER['REMOTE_USER'];
+		}
+
+		if ( isset( $wgAuthRemoteuserName ) ) {
+			$user->setRealName( $wgAuthRemoteuserName );
+		} else {
+			$user->setRealName( '' );
+		}
+
+		if ( isset( $wgAuthRemoteuserMail ) ) {
+			$user->setEmail( $wgAuthRemoteuserMail );
+		} elseif ( isset( $wgAuthRemoteuserMailDomain ) ) {
+			$user->setEmail( $username . '@' . $wgAuthRemoteuserMailDomain );
+		} else {
+			$user->setEmail( $username . "@example.com" );
+		}
+
+		$user->mEmailAuthenticated = wfTimestampNow();
+		$user->setToken();
+
+		// turn on e-mail notifications
+		if ( isset( $wgAuthRemoteuserNotify ) && $wgAuthRemoteuserNotify ) {
+			$user->setOption( 'enotifwatchlistpages', 1 );
+			$user->setOption( 'enotifusertalkpages', 1 );
+			$user->setOption( 'enotifminoredits', 1 );
+			$user->setOption( 'enotifrevealaddr', 1 );
+		}
+
+		$user->saveSettings();
+	}
+
+	/**
+	 * Modify options in the login template.  This shouldn't be very important
+	 * because no one should really be bothering with the login page.
+	 *
+	 * @param $template UserLoginTemplate object.
+	 * @public
+	 */
+	function modifyUITemplate( &$template ) {
+		// disable the mail new password box
+		$template->set( 'useemail', false );
+		// disable 'remember me' box
+		$template->set( 'remember', false );
+		$template->set( 'create', false );
+		$template->set( 'domain', false );
+		$template->set( 'usedomain', false );
+	}
+
+	/**
+	 * Normalize user names to the MediaWiki standard to prevent duplicate
+	 * accounts.
+	 *
+	 * @param $username String: username.
+	 * @return string
+	 * @public
+	 */
+	static function getCanonicalName( $username ) {
+		// lowercase the username
+		$username = strtolower( $username );
+		// uppercase first letter to make MediaWiki happy
+		return ucfirst( $username );
+	}
 }
 
