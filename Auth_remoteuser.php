@@ -93,7 +93,6 @@ $wgMinimalPasswordLength = 0;
 function Auth_remote_user_hook() {
 	global $wgUser;
 	global $wgRequest;
-	global $_REQUEST;
 	global $wgAuthRemoteuserDomain;
 
 	// For a few special pages, don't do anything.
