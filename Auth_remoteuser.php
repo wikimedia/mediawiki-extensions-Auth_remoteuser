@@ -102,7 +102,7 @@ $wgExtensionFunctions[] = 'Auth_remote_user_hook';
  * Note: If cookies are disabled, an infinite loop /might/ occur?
  */
 function Auth_remote_user_hook() {
-	global $wgUser, $wgRequest, $wgAuthRemoteuserDomain;
+	global $wgUser, $wgRequest, $wgAuthRemoteuserDomain, $wgAuth;
 
 	// For a few special pages, don't do anything.
 	$title = $wgRequest->getVal( 'title' );
@@ -125,7 +125,7 @@ function Auth_remote_user_hook() {
 	// Check for valid session
 	$user = User::newFromSession();
 	if ( !$user->isAnon() ) {
-		if ( $user->getName() == Auth_remoteuser::getCanonicalName( $username ) ) {
+		if ( $user->getName() == $wgAuth->getCanonicalName( $username ) ) {
 			return;            // Correct user is already logged in.
 		} else {
 			$user->doLogout(); // Logout mismatched user.
@@ -422,7 +422,7 @@ class Auth_remoteuser extends AuthPlugin {
 	 * @return string
 	 * @public
 	 */
-	static function getCanonicalName( $username ) {
+	function getCanonicalName( $username ) {
 		// lowercase the username
 		$username = strtolower( $username );
 		// uppercase first letter to make MediaWiki happy
