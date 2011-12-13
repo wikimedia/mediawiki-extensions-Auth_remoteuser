@@ -57,7 +57,7 @@ $wgExtensionCredits['other'][] = array(
 		'name' => 'AutomaticREMOTE USER',
 		'version' => '1.1.4',
 		'author' => array( 'Otheus Shelling', 'Rusty Burchfield', 'James Kinsman', 'Daniel Thomas', 'Ian Ward Comfort' ),
-		'url' => 'http://www.mediawiki.org/wiki/Extension:AutomaticREMOTE_USER',
+		'url' => 'https://www.mediawiki.org/wiki/Extension:AutomaticREMOTE_USER',
 		'description' => 'Automatically logs users using the REMOTE_USER environment variable.',
 );
 
