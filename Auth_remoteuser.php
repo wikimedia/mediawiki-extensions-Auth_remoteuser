@@ -216,9 +216,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 * @param $user User object.
 	 * @param $password String: password.
 	 * @return bool
-	 * @public
 	 */
-	function setPassword( $user, $password ) {
+	public function setPassword( $user, $password ) {
 		return false;
 	}
 
@@ -227,9 +226,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 *
 	 * @param $user User object.
 	 * @return bool
-	 * @public
 	 */
-	function updateExternalDB( $user ) {
+	public function updateExternalDB( $user ) {
 		return true;
 	}
 
@@ -248,11 +246,12 @@ class Auth_remoteuser extends AuthPlugin {
 	 * fail by always returning false.
 	 *
 	 * @param User $user
-	 * @param string $password
+	 * @param $password string
+	 * @param $email string
+	 * @param $realname string
 	 * @return bool
-	 * @public
 	 */
-	function addUser( $user, $password ) {
+	public function addUser( $user, $password, $email = '', $realname = '' ) {
 		return false;
 	}
 
@@ -263,9 +262,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 *
 	 * @param $username String: username.
 	 * @return bool
-	 * @public
 	 */
-	function userExists( $username ) {
+	public function userExists( $username ) {
 		return true;
 	}
 
@@ -277,9 +275,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 * @param $username String: username.
 	 * @param $password String: user password.
 	 * @return bool
-	 * @public
 	 */
-	function authenticate( $username, $password ) {
+	public function authenticate( $username, $password ) {
 		global $wgAuthRemoteuserAuthz, $wgAuthRemoteuserDomain;
 
 		if ( isset( $wgAuthRemoteuserAuthz ) && !$wgAuthRemoteuserAuthz ) {
@@ -305,9 +302,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 *
 	 * @param $domain String: authentication domain.
 	 * @return bool
-	 * @public
 	 */
-	function validDomain( $domain ) {
+	public function validDomain( $domain ) {
 		return true;
 	}
 
@@ -319,10 +315,10 @@ class Auth_remoteuser extends AuthPlugin {
 	 * The User object is passed by reference so it can be modified; don't
 	 * forget the & on your function declaration.
 	 *
-	 * @param User $user
-	 * @public
+	 * @param $user User
+	 * @return bool
 	 */
-	function updateUser( &$user ) {
+	public function updateUser( &$user ) {
 		// We only set this stuff when accounts are created.
 		return true;
 	}
@@ -333,9 +329,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 * does in the external auth database.
 	 *
 	 * @return bool
-	 * @public
 	 */
-	function autoCreate() {
+	public function autoCreate() {
 		return true;
 	}
 
@@ -344,9 +339,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 * checked against the local database's password fields.
 	 *
 	 * @return bool
-	 * @public
 	 */
-	function strict() {
+	public function strict() {
 		return true;
 	}
 
@@ -356,9 +350,9 @@ class Auth_remoteuser extends AuthPlugin {
 	 * external user database.
 	 *
 	 * @param $user User object.
-	 * @public
+	 * @param $autocreate bool
 	 */
-	function initUser( &$user ) {
+	public function initUser( &$user, $autocreate = false ) {
 		global $wgAuthRemoteuserName, $wgAuthRemoteuserMail, $wgAuthRemoteuserMailDomain,
 			$wgAuthRemoteuserNotify, $wgAuthRemoteuserDomain;
 
@@ -402,9 +396,9 @@ class Auth_remoteuser extends AuthPlugin {
 	 * because no one should really be bothering with the login page.
 	 *
 	 * @param $template UserLoginTemplate object.
-	 * @public
+	 * @param $type String
 	 */
-	function modifyUITemplate( &$template ) {
+	public function modifyUITemplate( &$template, &$type ) {
 		// disable the mail new password box
 		$template->set( 'useemail', false );
 		// disable 'remember me' box
@@ -420,9 +414,8 @@ class Auth_remoteuser extends AuthPlugin {
 	 *
 	 * @param $username String: username.
 	 * @return string
-	 * @public
 	 */
-	function getCanonicalName( $username ) {
+	public function getCanonicalName( $username ) {
 		// lowercase the username
 		$username = strtolower( $username );
 		// uppercase first letter to make MediaWiki happy
