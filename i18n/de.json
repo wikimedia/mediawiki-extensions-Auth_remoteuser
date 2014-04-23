@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Metalhead64"
+		]
+	},
+	"auth_remoteuser-desc": "Ermöglicht die automatische Protokollierung von Benutzern mithilfe der <code>REMOTE_USER</code>-Umgebungsvariable"
+}
