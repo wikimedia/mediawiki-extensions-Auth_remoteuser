@@ -63,6 +63,7 @@
 
 // Extension credits that show up on Special:Version
 $wgExtensionCredits['other'][] = array(
+	'path' => __FILE__,
 	'name' => 'Auth_remoteuser',
 	'version' => '1.1.4',
 	'author' => array( 'Otheus Shelling', 'Rusty Burchfield',
@@ -70,9 +71,10 @@ $wgExtensionCredits['other'][] = array(
 		'[[mw:User:MarkAHershberger|Mark A. Hershberger]]'
 	),
 	'url' => 'https://www.mediawiki.org/wiki/Extension:Auth_remoteuser',
-	'description' => 'Automatically logs users using the REMOTE_USER '.
-		'environment variable.',
+	'descriptionmsg' => 'auth_remoteuser-desc',
 );
+
+$wgMessagesDirs['Auth_remoteuser'] = __DIR__ . '/i18n';
 
 // We must allow zero length passwords. This extension does not work
 // in MW 1.16 without this.
