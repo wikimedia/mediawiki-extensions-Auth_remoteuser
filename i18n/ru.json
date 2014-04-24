@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Okras"
+		]
+	},
+	"auth_remoteuser-desc": "Автоматически протоколирует пользователей с помощью переменной окружения <code>REMOTE_USER</code>"
+}

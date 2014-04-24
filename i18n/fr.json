@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Gomoko"
+		]
+	},
+	"auth_remoteuser-desc": "Journalise automatiquement les utilisateurs en utilisant la variable d’environnement <code>REMOTE_USER</code>"
+}
