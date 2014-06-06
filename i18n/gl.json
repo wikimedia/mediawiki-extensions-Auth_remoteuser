@@ -1,8 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
-			"Elisardojm"
+			"Elisardojm",
+			"Toliño"
 		]
 	},
-	"auth_remoteuser-desc": "Rexistra automaticamente usuarios que utilizan a variable de contorno <code>REMOTE_USER</code>"
+	"auth_remoteuser-desc": "Rexistra automaticamente aos usuarios que utilizan a variable de contorno <code>REMOTE_USER</code>"
 }
