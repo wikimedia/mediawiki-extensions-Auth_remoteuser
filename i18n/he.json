@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Ronel1"
+		]
+	},
+	"auth_remoteuser-desc": "באופן אוטומטי יומני משתמשים באמצעות <code> </ code> משתנה סביבת REMOTE_USER"
+}
