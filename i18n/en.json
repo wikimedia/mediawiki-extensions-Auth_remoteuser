@@ -4,5 +4,5 @@
             "Otheus Shelling"
         ]
     },
-    "auth_remoteuser-desc": "Automatically logs users using the <code>REMOTE_USER</code> environment variable"
+    "auth_remoteuser-desc": "Automatically logs-in users using the <code>REMOTE_USER</code> environment variable"
 }
