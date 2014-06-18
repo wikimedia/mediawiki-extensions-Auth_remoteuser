@@ -4,5 +4,5 @@
 			"Metalhead64"
 		]
 	},
-	"auth_remoteuser-desc": "Ermöglicht die automatische Protokollierung von Benutzern mithilfe der <code>REMOTE_USER</code>-Umgebungsvariable"
+	"auth_remoteuser-desc": "Ermöglicht die automatische Anmeldung von Benutzern mithilfe der <code>REMOTE_USER</code>-Umgebungsvariable"
 }
