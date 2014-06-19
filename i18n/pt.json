@@ -1,8 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
-			"Fúlvio"
+			"Fúlvio",
+			"Vitorvicentevalente"
 		]
 	},
-	"auth_remoteuser-desc": "Registra automaticamente utilizadores que utilizam a variável de ambiente <code>REMOTE_USER</code>"
+	"auth_remoteuser-desc": "Regista automaticamente utilizadores que utilizam a variável de ambiente <code>REMOTE_USER</code>"
 }
