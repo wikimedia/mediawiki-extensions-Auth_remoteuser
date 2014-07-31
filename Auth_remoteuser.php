@@ -126,7 +126,11 @@ $wgAuthRemoteuserMailDomain = "example.com";
 $wgExtensionFunctions[] = function () {
 	global $wgAuth;
 
-	$wgAuth->setupExtensionForRequest();
+	if ( $wgAuth instanceof Auth_remoteuser ) {
+		$wgAuth->setupExtensionForRequest();
+	} else {
+		die( wfMessage( 'auth_remoteuser-wgautherror' ) );
+	}
 };
 
 $wgAutoloadClasses['Auth_remoteuser'] = __DIR__ . '/Auth_remoteuser.body.php';
