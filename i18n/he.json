@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Ronel1"
+			"Ronel1",
+			"Amire80"
 		]
 	},
-	"auth_remoteuser-desc": "באופן אוטומטי יומני משתמשים באמצעות <code> </ code> משתנה סביבת REMOTE_USER"
+	"auth_remoteuser-desc": "באופן אוטומטי יומני משתמשים באמצעות <code> </ code> משתנה סביבת REMOTE_USER",
+	"auth_remoteuser-wgautherror": "קיימת הרחבה נוספת שמשתמשת ב[https://www.mediawiki.org/wiki/Special:MyLanguage/Manual:$wgAuth משתנה <code>wgAuth</code>]. אין באפשרותכם להשתמש ביותר מהרחבה אחת שמשתמשת ב־<code>$wgAuth</code> באותו זמן. אם אין הרחבה אחרת, נא לוודאו שהגדרת את השורה הבאה בקובץ ה־<code>LocalSettings.php</code> שלך:\n <code dir=\"ltr\">$wgAuth = new Auth_remoteuser();</code>"
 }
