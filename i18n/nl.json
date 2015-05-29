@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+			"Esketti"
+		]
+	},
+	"auth_remoteuser-desc": "Automatisch logs-in-gebruikers met behulp van de <code>REMOTE_USER</code> omgevingsvariabele",
+	"auth_remoteuser-wgautherror": "Er is een andere uitbreiding met [https://www.mediawiki.org/wiki/Special:MyLanguage/Manual:$wgAuth de <code>wgAuth</code> variabele]. U kunt niet meer dan een uitbreiding met <code>$wgAuth</code> op hetzelfde moment. Als er niet een ander toestel, zorg dan dat u de volgende regel in uw <code>LocalSettings.php</code>:\n <code>$wgAuth = nieuwe Auth_remoteuser();</code>"
+}
