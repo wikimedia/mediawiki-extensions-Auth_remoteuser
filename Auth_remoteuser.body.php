@@ -142,7 +142,7 @@ class Auth_remoteuser extends AuthPlugin {
 	 */
 	public function initUser( &$user, $autocreate = false ) {
 		$username = $this->getRemoteUsername();
-		if ( wfRunHooks( "AuthRemoteUserInitUser",
+		if ( Hooks::run( "AuthRemoteUserInitUser",
 				array( $user, $autocreate ) ) ) {
 
 			$this->setRealName( $user );
