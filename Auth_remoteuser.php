@@ -104,6 +104,18 @@ $wgAuthRemoteuserDomain = "";
 $wgAuthRemoteuserMailDomain = "example.com";
 
 /**
+ * Register $wgAuth to please Wikimedia CI.
+ *
+ * Should really use MediaWiki auth manager instead.
+ */
+if ( isset( $wgWikimediaJenkinsCI ) && $wgWikimediaJenkinsCI === true ) {
+    $wgExtensionFunctions[] = function () {
+	    global $wgAuth;
+		$wgAuth = new Auth_remoteuser();
+	};
+}
+
+/**
  * This hook is registered by the Auth_remoteuser constructor.  It
  * will be called on every page load.  It serves the function of
  * automatically logging in the user.  The Auth_remoteuser class is an
