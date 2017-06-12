@@ -483,7 +483,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 							$url = call_user_func( $url, $metadata );
 						}
 						$internal = Title::newFromText( $url );
-						$known = $internal->isKnown();
+						$known = $internal && $internal->isKnown();
 						if ( $known ) {
 							$url = $internal->getFullURL();
 						}
@@ -514,7 +514,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 							$url = call_user_func( $url, $metadata );
 						}
 						$internal = Title::newFromText( $url );
-						if ( $internal->isKnown() ) {
+
+						if ( $internal && $internal->isKnown() ) {
 							$url = $internal->getLinkURL();
 						}
 						$personalurls[ 'logout' ][ 'href' ] = $url;
