@@ -519,6 +519,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 							$url = $internal->getLinkURL();
 						}
 						$personalurls[ 'logout' ][ 'href' ] = $url;
+						$personalurls[ 'logout' ][ 'text' ] = $metadata[ 'remoteUserName' ];
 						return true;
 					}
 				);
