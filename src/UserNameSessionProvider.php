@@ -54,7 +54,7 @@ use Title;
  * only.
  *
  * @see CookieSessionProvider::provideSessionInfo()
- * @version 2.0.0
+ * @version 2.0.1
  * @since 2.0.0
  */
 class UserNameSessionProvider extends CookieSessionProvider {
@@ -136,6 +136,15 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @since 2.0.0
 	 */
 	protected $remoteToken;
+
+	/**
+	 * Determines whether to run the `UserLoggedIn` hook after a session has
+	 * been created.
+	 *
+	 * @var boolean
+	 * @since 2.0.1
+	 */
+	protected $callUserLoggedInHook = false;
 
 	/**
 	 * The constructor processes the class configuration.
@@ -365,6 +374,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 					'userInfo' => $userInfo
 					]
 				);
+				$this->callUserLoggedInHook = true;
 			}
 
 			# The current session identifies an anonymous user, therefore we have to
@@ -378,6 +388,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 					'forceUse' => true
 					]
 				);
+				$this->callUserLoggedInHook = true;
 			}
 
 			# Store info about user in the provider metadata.
@@ -632,6 +643,29 @@ class UserNameSessionProvider extends CookieSessionProvider {
 				return true;
 			}
 		);
+
+		# Before running the hook, prepare the session by mirroring the steps
+		# normally performed by the AuthManager.
+		#
+		# @see AuthManager::setSessionDataForUser()
+		# @see AuthManager::securitySensitiveOperationStatus()
+		if ( $this->callUserLoggedInHook ) {
+
+			$session = $this->manager->getSessionFromInfo( $info, $request );
+			$delay = $session->delaySave();
+			$session->resetAllTokens();
+			$session->set( 'AuthManager:lastAuthId', $info->getUserInfo()->getId() );
+			$session->set( 'AuthManager:lastAuthTimestamp', time() );
+			$session->persist();
+			# Destroy scoped callback.
+			#
+			# @see \ScopedCallback::consume() for MW REL1.27
+			# @see \Wikimedia\ScopedCallback::consume() for MW >=REL1.28
+			$delay = null;
+
+			Hooks::run( 'UserLoggedIn', [ $info->getUserInfo()->getUser() ] );
+
+		}
 
 		return true;
 	}

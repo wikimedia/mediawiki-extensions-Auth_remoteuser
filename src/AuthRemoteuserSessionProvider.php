@@ -33,7 +33,7 @@ use GlobalVarConfig;
 /**
  * Session provider for the Auth_remoteuser extension.
  *
- * @version 2.0.0
+ * @version 2.0.1
  * @since 2.0.0
  */
 class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
