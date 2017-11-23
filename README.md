@@ -25,8 +25,14 @@ Requirements
 Installation
 ------------
 
-Copy this extension directory `Auth_remoteuser/` into your mediawiki
-extension folder `extensions/`. Then add the following line to your
+Either copy this extension directory `Auth_remoteuser/` into your
+mediawiki extension folder `extensions/` or, when installing with
+Composer, add an appropriate required package link to your
+`composer.local.json` file:
+
+    "require": { "mediawiki/auth-remoteuser": "~2" }
+
+Then, enable the extension in MediaWiki by adding the following to your
 global configuration file `LocalSettings.php`:
 
     wfLoadExtension( 'Auth_remoteuser' );
