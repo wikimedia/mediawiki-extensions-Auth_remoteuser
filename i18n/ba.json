@@ -4,6 +4,5 @@
 			"Sagan"
 		]
 	},
-	"auth_remoteuser-desc": "Үҙгәреүсән мөхиттән ҡулланыусылар системаһына автоматик инеүҙе башҡара <code>REMOTE_USER</code>",
-	"auth_remoteuser-wgautherror": "Существует еще одно расширение использующее [https://www.mediawiki.org/wiki/Special:MyLanguage/Manual:$wgAuth Үҙгәреүсенде <code>wgAuth</code>]  ҡулланған таға ла бер ҡушымта бар. \n\n<code>$wgAuth</code> ҡушымтаһын ҡулланған берәүҙән артыҡ өҫтәмәне ҡуллана алмайһығыҙ. Башҡа ҡарар булмаһы, яҙғанығыҙҙы тикшереп ҡарағыҙ <code>LocalSettings.php</code>: <code>$wgAuth = new Auth_remoteuser();</code>"
+	"auth_remoteuser-desc": "Үҙгәреүсән мөхиттән ҡулланыусылар системаһына автоматик инеүҙе башҡара <code>REMOTE_USER</code>"
 }

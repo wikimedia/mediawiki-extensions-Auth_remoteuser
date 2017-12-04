@@ -4,6 +4,5 @@
 			"!Silent"
 		]
 	},
-	"auth_remoteuser-desc": "Registra automaticamente os usuários logados que utilizam a variável de ambiente <code>REMOTE_USER</code>",
-	"auth_remoteuser-wgautherror": "Existe outra extensão utilizando [https://www.mediawiki.org/wiki/Special:MyLanguage/Manual:$wgAuth a variável <code>wgAuth</code>]. Não pode utilizar ao mesmo tempo mais de uma extensão que utilize <code>$wgAuth</code>. Se não houver outra extensão, certifique-se de configurar a seguinte linha no seu <code>LocalSettings.php</code>:\n <code>$wgAuth = new Auth_remoteuser();</code>"
+	"auth_remoteuser-desc": "Registra automaticamente os usuários logados que utilizam a variável de ambiente <code>REMOTE_USER</code>"
 }

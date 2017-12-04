@@ -4,6 +4,5 @@
 			"Red Winged Duck"
 		]
 	},
-	"auth_remoteuser-desc": "Аўтаматычна выконвае ўваход у сыстэму з дапамогай зьменнай асяродзьдзя <code>REMOTE_USER</code>",
-	"auth_remoteuser-wgautherror": "Ёсьць яшчэ адно пашырэньне, якое выкарыстоўвае [https://www.mediawiki.org/wiki/Special:MyLanguage/Manual:$wgAuth зьменную <code>wgAuth</code>]. Вы ня можаце адначасова ўжываць больш за адно пашырэньне, якое выкарыстоўвае <code>$wgAuth</code>. Калі іншага такога пашырэньня няма, калі ласка, упэўніцеся, што вы дадалі наступны радок у ваш <code>LocalSettings.php</code>:\n <code>$wgAuth = new Auth_remoteuser();</code>"
+	"auth_remoteuser-desc": "Аўтаматычна выконвае ўваход у сыстэму з дапамогай зьменнай асяродзьдзя <code>REMOTE_USER</code>"
 }

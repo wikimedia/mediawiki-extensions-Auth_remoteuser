@@ -4,6 +4,5 @@
 			"Giromin Cangiaxo"
 		]
 	},
-	"auth_remoteuser-desc": "O registra aotomaticamente i utenti doeuviando a variabbile d'ambiente <code>REMOTE_USER</code>",
-	"auth_remoteuser-wgautherror": "Gh'è un'atra estenscion ch'a doeuvia [https://www.mediawiki.org/wiki/Special:MyLanguage/Manual:$wgAuth a variabbile <code>wgAuth</code>]. No ti poeu doeuviâ insemme ciù de 'n'estenscion con <code>$wgAuth</code>. Se no gh'è un'atra estenscion, asseguite d'avei impostou a seguente riga into <code>LocalSettings.php</code>:\n <code>$wgAuth = new Auth_remoteuser();</code>"
+	"auth_remoteuser-desc": "O registra aotomaticamente i utenti doeuviando a variabbile d'ambiente <code>REMOTE_USER</code>"
 }
