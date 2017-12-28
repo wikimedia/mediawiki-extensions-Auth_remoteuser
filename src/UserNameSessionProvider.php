@@ -518,7 +518,11 @@ class UserNameSessionProvider extends CookieSessionProvider {
 						if ( $internal && $internal->isKnown() ) {
 							$url = $internal->getLinkURL();
 						}
-						$personalurls[ 'logout' ][ 'href' ] = $url;
+						$personalurls[ 'logout' ] = [
+							'href' => $url,
+							'text' => wfMessage( 'pt-userlogout' )->text(),
+							'active' => false
+						];
 						return true;
 					}
 				);
