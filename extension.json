@@ -34,7 +34,7 @@
 			"i18n"
 		]
 	},
-	"license-name": "GPL-2.0+",
+	"license-name": "GPL-2.0-or-later",
 	"SessionProviders": {
 		"Auth_remoteuser": {
 			"class": "MediaWiki\\Extensions\\Auth_remoteuser\\AuthRemoteuserSessionProvider"
