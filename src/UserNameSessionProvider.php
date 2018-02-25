@@ -453,12 +453,28 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$disableSpecialPages += [
 				'Userlogin',
 				'Userlogout',
-				'CreateAccount',
 				'LinkAccounts',
 				'UnlinkAccounts',
 				'ChangeCredentials',
 				'RemoveCredentials'
 			];
+			# Special page 'CreateAccount' depends on the `createaccount` permission.
+			#
+			# If `self::switchUser` is `false` a user with this permission can still
+			# access this page and create accounts, but won't be logged-in to the newly
+			# created one.
+			#
+			# Making access to this page dependent on permissions is useful for wikis
+			# where only a subset of all remotely authenticated users should become
+			# logged-in automatically (when the extension is not configured to create
+			# accounts for all users) and user switching is forbidden. A wiki admin with
+			# this permission can then access this page to create accounts explicitly.
+			$user = $info->getUserInfo()->getUser();
+			$permissions = $user->getGroupPermissions( $user->getEffectiveGroups() );
+			if ( !in_array( 'createaccount', $permissions, true ) &&
+				!in_array( 'CreateAccount', $disableSpecialPages, true ) ) {
+				$disableSpecialPages[] = 'CreateAccount';
+			}
 		}
 
 		# This can only be true, if our `switchUser` member is set to true and the
