@@ -356,17 +356,16 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			#
 			# @see AuthManager::AutoCreateBlacklist
 			# @see AuthManager::autoCreateUser()
-			if ( $sessionInfo && !$userInfo->getId() ) {
-				$anon = $userInfo->getUser();
-				$permissions = $anon->getGroupPermissions( $anon->getEffectiveGroups() );
-				if ( in_array( 'autocreateaccount', $permissions, true ) ||
-					in_array( 'createaccount', $permissions, true ) ) {
-					$this->logger->warning(
-						"Renew session due to global permission change " .
-						"in (auto) creating new users."
-					);
-					$sessionInfo = null;
-				}
+			if (
+				$sessionInfo
+				&& $userInfo->getUser()->isAnon()
+				&& $userInfo->getUser()->isAllowedAny( 'createaccount', 'autocreateaccount' )
+			) {
+				$this->logger->warning(
+					"Renew session due to global permission change " .
+					"in (auto) creating new users."
+				);
+				$sessionInfo = null;
 			}
 
 			# If our parent provides a session info, it could be from an old request
