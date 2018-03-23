@@ -481,12 +481,12 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		# Disable any special pages related to user switching.
 		if ( !$this->switchUser ) {
 			$disableSpecialPages += [
-				'Userlogin',
-				'Userlogout',
-				'LinkAccounts',
-				'UnlinkAccounts',
-				'ChangeCredentials',
-				'RemoveCredentials'
+				'Userlogin' => true,
+				'Userlogout' => true,
+				'LinkAccounts' => true,
+				'UnlinkAccounts' => true,
+				'ChangeCredentials' => true,
+				'RemoveCredentials' => true,
 			];
 			# Special page 'CreateAccount' depends on the `createaccount` permission.
 			#
@@ -501,9 +501,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# this permission can then access this page to create accounts explicitly.
 			$user = $info->getUserInfo()->getUser();
 			$permissions = $user->getGroupPermissions( $user->getEffectiveGroups() );
-			if ( !in_array( 'createaccount', $permissions, true ) &&
-				!in_array( 'CreateAccount', $disableSpecialPages, true ) ) {
-				$disableSpecialPages[] = 'CreateAccount';
+			if ( !in_array( 'createaccount', $permissions, true ) ) {
+				$disableSpecialPages += [ 'CreateAccount' => true ];
 			}
 		}
 
@@ -513,7 +512,10 @@ class UserNameSessionProvider extends CookieSessionProvider {
 
 		# Disable password related special pages and hide preference option.
 		if ( !$switchedUser ) {
-			$disableSpecialPages += [ 'ChangePassword', 'PasswordReset' ];
+			$disableSpecialPages += [
+				'ChangePassword' => true,
+				'PasswordReset' => true,
+			];
 			global $wgHiddenPrefs;
 			$wgHiddenPrefs[] = 'password';
 		}
@@ -585,7 +587,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 				);
 			}
 		} elseif ( !$switchedUser ) {
-			$disablePersonalUrls[] = 'logout';
+			$disablePersonalUrls += [ 'logout' => true ];
 		}
 
 		# Set user preferences on account creation only.
@@ -626,9 +628,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# Disable special pages related to email preferences.
 			if ( array_key_exists( 'email', $preferences ) ) {
 				$disableSpecialPages += [
-					'ChangeEmail',
-					'Confirmemail',
-					'Invalidateemail'
+					'ChangeEmail' => true,
+					'Confirmemail' => true,
+					'Invalidateemail' => true,
 				];
 			}
 
@@ -673,8 +675,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		Hooks::register(
 			'SpecialPage_initList',
 			function ( &$specials ) use ( $disableSpecialPages ) {
-				foreach ( $disableSpecialPages as $page ) {
-					unset( $specials[ $page ] );
+				foreach ( $disableSpecialPages as $page => $true ) {
+					if ( $true ) { unset( $specials[ $page ] ); }
 				}
 				return true;
 			}
@@ -683,8 +685,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		Hooks::register(
 			'PersonalUrls',
 			function ( &$personalurls ) use ( $disablePersonalUrls ) {
-				foreach ( $disablePersonalUrls as $url ) {
-					unset( $personalurls[ $url ] );
+				foreach ( $disablePersonalUrls as $url => $true ) {
+					if ( $true ) { unset( $personalurls[ $url ] ); }
 				}
 				return true;
 			}
