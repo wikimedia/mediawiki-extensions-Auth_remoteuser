@@ -6,5 +6,5 @@
 			"Guycn2"
 		]
 	},
-	"auth_remoteuser-desc": "באופן אוטומטי יומני משתמשים באמצעות <code> </ code> משתנה סביבת REMOTE_USER"
+	"auth_remoteuser-desc": "הכנסת משתמשים לחשבון באופן אוטומטי באמצעות משתנה הסביבה <code>REMOTE_USER</code>"
 }
