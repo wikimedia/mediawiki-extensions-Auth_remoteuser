@@ -389,7 +389,6 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			if ( !$sessionInfo ) {
 				$sessionInfo = new SessionInfo( $this->priority, [
 					'provider' => $this,
-					'id' => $this->manager->generateSessionId(),
 					'userInfo' => $userInfo
 					]
 				);
