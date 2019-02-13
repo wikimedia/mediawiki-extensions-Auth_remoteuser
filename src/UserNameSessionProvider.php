@@ -466,6 +466,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @since 2.0.0
 	 */
 	public function refreshSessionInfo( SessionInfo $info, WebRequest $request, &$metadata ) {
+		if ( $metadata === null ) {
+			$metadata = [];
+		}
 
 		$this->logger->info( "Setting up auto login session for remote user name " .
 			"'{remoteUserName}' (mapped to MediaWiki user '{canonicalUserName}', " .
