@@ -26,17 +26,16 @@
  */
 namespace MediaWiki\Extension\Auth_remoteuser;
 
+use Closure;
+use Hooks;
 use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
-use MediaWiki\Session\SessionManager;
 use MediaWiki\Session\SessionInfo;
 use MediaWiki\Session\UserInfo;
-use WebRequest;
-use Hooks;
 use Sanitizer;
-use User;
-use Closure;
 use Title;
+use User;
+use WebRequest;
 
 /**
  * MediaWiki session provider for arbitrary user name sources.
@@ -65,7 +64,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @var string
 	 * @since 2.0.0
 	 */
-	const HOOKNAME = "UserNameSessionProviderFilterUserName";
+	public const HOOKNAME = "UserNameSessionProviderFilterUserName";
 
 	/**
 	 * The remote user name(s) given as an array.
@@ -160,10 +159,10 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * * `switchUser` - @see self::$switchUser
 	 * * `removeAuthPagesAndLinks` - @see self::$removeAuthPagesAndLinks
 	 *
+	 * @param array $params Session Provider parameters.
 	 * @since 2.0.0
 	 */
 	public function __construct( $params = [] ) {
-
 		# Setup configuration defaults.
 		$defaults = [
 			'remoteUserNames' => [],
@@ -175,17 +174,17 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		];
 
 		# Sanitize configuration and apply to own members.
-		foreach( $defaults as $key => $default) {
+		foreach ( $defaults as $key => $default ) {
 			$value = $default;
 			if ( array_key_exists( $key, $params ) ) {
-				switch( $key ) {
+				switch ( $key ) {
 					case 'remoteUserNames':
 						$final = [];
 						$names = $params[ $key ];
 						if ( !is_array( $names ) ) {
 							$names = [ $names ];
 						}
-						foreach( $names as $name ) {
+						foreach ( $names as $name ) {
 							if ( is_string( $name ) || $name instanceof Closure ) {
 								$final[] = $name;
 							}
@@ -255,10 +254,11 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * SessionProvider installed to determine if this SessionProvider has
 	 * identified a possible session.
 	 *
+	 * @param WebRequest $request The active WebRequest.
+	 * @return ?SessionInfo
 	 * @since 2.0.0
 	 */
 	public function provideSessionInfo( WebRequest $request ) {
-
 		# Loop through user names given by all remote sources. First hit, which
 		# matches a usable local user name, will be used for our SessionInfo then.
 		foreach ( $this->remoteUserNames as $remoteUserName ) {
@@ -441,6 +441,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * But let our parents implementation of this method decide on his own for the
 	 * other members.
 	 *
+	 * @param array $savedMetadata Saved metadata.
+	 * @param array $providedMetadata Provided metadata.
+	 * @return array
 	 * @since 2.0.0
 	 */
 	public function mergeMetadata( array $savedMetadata, array $providedMetadata ) {
@@ -463,6 +466,10 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * Now we can add additional information to the requests user object and
 	 * remove some special pages and personal urls from the clients frontend.
 	 *
+	 * @param SessionInfo $info The SessionInfo.
+	 * @param WebRequest $request The WebRequest.
+	 * @param array &$metadata The metadata.
+	 * @return bool
 	 * @since 2.0.0
 	 */
 	public function refreshSessionInfo( SessionInfo $info, WebRequest $request, &$metadata ) {
@@ -539,7 +546,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			if ( $this->canChangeUser() ) {
 				Hooks::register(
 					'UserLogout',
-					function() use ( $url, $metadata, $switchedUser ) {
+					function () use ( $url, $metadata, $switchedUser ) {
 						if ( $url instanceof Closure ) {
 							$url = call_user_func( $url, $metadata );
 						}
@@ -558,7 +565,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 						}
 						Hooks::register(
 							'UserLogoutComplete',
-							function() use ( $url ) {
+							function () use ( $url ) {
 								global $wgOut;
 								$wgOut->redirect( $url );
 								return true;
@@ -570,7 +577,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			} else {
 				Hooks::register(
 					'PersonalUrls',
-					function( &$personalurls ) use ( $url, $metadata ) {
+					function ( &$personalurls ) use ( $url, $metadata ) {
 						if ( $url instanceof Closure ) {
 							$url = call_user_func( $url, $metadata );
 						}
@@ -600,7 +607,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			}
 			Hooks::register(
 				'LocalUserCreated',
-				function( $user, $autoCreated ) use ( $prefs, $metadata ) {
+				function ( $user, $autoCreated ) use ( $prefs, $metadata ) {
 					if ( $autoCreated ) {
 						$this->setUserPrefs(
 							$user,
@@ -642,8 +649,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$keys = array_keys( $preferences );
 			Hooks::register(
 				'GetPreferences',
-				function( $user, &$prefs ) use ( $keys ) {
-					foreach( $keys as $key ) {
+				function ( $user, &$prefs ) use ( $keys ) {
+					foreach ( $keys as $key ) {
 
 						if ( 'email' === $key ) {
 							$key = 'emailaddress';
@@ -678,7 +685,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			'SpecialPage_initList',
 			function ( &$specials ) use ( $disableSpecialPages ) {
 				foreach ( $disableSpecialPages as $page => $true ) {
-					if ( $true ) { unset( $specials[ $page ] ); }
+					if ( $true ) {
+						unset( $specials[ $page ] );
+					}
 				}
 				return true;
 			}
@@ -688,7 +697,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			'PersonalUrls',
 			function ( &$personalurls ) use ( $disablePersonalUrls ) {
 				foreach ( $disablePersonalUrls as $url => $true ) {
-					if ( $true ) { unset( $personalurls[ $url ] ); }
+					if ( $true ) {
+						unset( $personalurls[ $url ] );
+					}
 				}
 				return true;
 			}
@@ -731,6 +742,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * but needs access as another local user, e.g. a bot account, which in itself
 	 * can never be identified as any remote user.
 	 *
+	 * @return bool
 	 * @since 2.0.0
 	 */
 	public function canChangeUser() {
@@ -740,6 +752,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	/**
 	 * Mark the cookie with current remote token.
 	 *
+	 * @param User $user The authenticated user for this session.
+	 * @param bool $remember Whether the user should be remembered independently of the session ID.
+	 * @return array
 	 * @since 2.0.0
 	 */
 	protected function cookieDataToExport( $user, $remember ) {
@@ -750,12 +765,14 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	/**
 	 * Specify remote token.
 	 *
+	 * @param SessionBackend $session The session.
+	 * @param WebRequest $request The WebRequest.
 	 * @since 2.0.0
 	 */
 	public function persistSession( SessionBackend $session, WebRequest $request ) {
 		$metadata = $session->getProviderMetadata();
 		$this->remoteToken = $metadata[ 'filteredUserName' ];
-		return parent::persistSession( $session, $request );
+		parent::persistSession( $session, $request );
 	}
 
 	/**
@@ -779,14 +796,13 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @param User $user
 	 * @param Array $preferences
 	 * @param Array $metadata
-	 * @param boolean $saveToDB Save changes to database with this funtion call.
+	 * @param bool $saveToDB Save changes to database with this function call.
 	 * @see User::setRealName()
 	 * @see User::setEmail()
 	 * @see User::setOption()
 	 * @since 2.0.0
 	 */
 	public function setUserPrefs( $user, $preferences, $metadata, $saveToDB = false ) {
-
 		if ( $user instanceof User && is_array( $preferences ) && is_array( $metadata ) ) {
 
 			# Mark changes to prevent superfluous database writings.
@@ -827,8 +843,6 @@ class UserNameSessionProvider extends CookieSessionProvider {
 				$user->saveSettings();
 			}
 		}
-
 	}
 
 }
-

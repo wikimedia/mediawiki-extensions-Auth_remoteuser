@@ -26,9 +26,8 @@
  */
 namespace MediaWiki\Extension\Auth_remoteuser;
 
-use MediaWiki\Extension\Auth_remoteuser\UserNameSessionProvider;
-use Hooks;
 use GlobalVarConfig;
+use Hooks;
 
 /**
  * Session provider for the Auth_remoteuser extension.
@@ -43,7 +42,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 *
 	 * @since 2.0.0
 	 */
-	const HOOKNAME = "AuthRemoteuserFilterUserName";
+	public const HOOKNAME = "AuthRemoteuserFilterUserName";
 
 	/**
 	 * The constructor processes the extension configuration.
@@ -69,10 +68,10 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * * `$wgAuthRemoteuserRemoveAuthPagesAndLinks`
 	 * * `$wgAuthRemoteuserPriority`
 	 *
+	 * @param array $params Session Provider parameters.
 	 * @since 2.0.0
 	 */
 	public function __construct( $params = [] ) {
-
 		# Process our extension specific configuration, but don't overwrite our
 		# parents `$this->config` property, because doing so will clash with the
 		# SessionManager setting of that property due to a different prefix used.
@@ -130,10 +129,10 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		# wouldn't be a real logout when the client gets logged-in again with the
 		# next request.
 		if ( !empty( $params[ 'switchUser' ] ) ) {
-			if ( !isset( $params[ 'userUrls' ] ) ||	!is_array( $params[ 'userUrls' ] ) ) {
+			if ( !isset( $params[ 'userUrls' ] ) || !is_array( $params[ 'userUrls' ] ) ) {
 				$params[ 'userUrls' ] = [];
 			}
-			$params[ 'userUrls' ] += [ 'logout' => 'Special:UserLogin' ]; 
+			$params[ 'userUrls' ] += [ 'logout' => 'Special:UserLogin' ];
 		}
 
 		# Prepare `userPrefs` configuration for legacy parameter evaluation.
@@ -181,7 +180,9 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		# Evaluation of legacy parameter `$wgAuthRemoteuserDomain`.
 		#
 		# @deprecated 2.0.0
-		if ( $conf->has( 'Domain' ) && is_string( $conf->get( 'Domain' ) ) && $conf->get( 'Domain' ) !== '' ) {
+		if ( $conf->has( 'Domain' )
+			&& is_string( $conf->get( 'Domain' ) )
+			&& $conf->get( 'Domain' ) !== '' ) {
 			$this->setUserNameReplaceFilter( [
 				'@' . $conf->get( 'Domain' ) . '$' => '',
 				'^' . $conf->get( 'Domain' ) . '\\' => ''
@@ -195,10 +196,12 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		# closure feature of the user preference values to defer the evaluation.
 		#
 		# @deprecated 2.0.0
-		if ( $conf->has( 'MailDomain' ) && is_string( $conf->get( 'MailDomain' ) ) && $conf->get( 'MailDomain' ) !== '' ) {
+		if ( $conf->has( 'MailDomain' )
+			&& is_string( $conf->get( 'MailDomain' ) )
+			&& $conf->get( 'MailDomain' ) !== '' ) {
 			$domain = $conf->get( 'MailDomain' );
 			$params[ 'userPrefs' ] += [
-				'email' => function( $metadata ) use( $domain )  {
+				'email' => function ( $metadata ) use( $domain )  {
 					return $metadata[ 'remoteUserName' ] . '@' . $domain;
 				}
 			];
@@ -224,7 +227,6 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * @since 2.0.0
 	 */
 	public function setUserNameReplaceFilter( $replacepatterns ) {
-
 		if ( !is_array( $replacepatterns ) ) {
 			throw new UnexpectedValueException( __METHOD__ . ' expects an array as parameter.' );
 		}
@@ -234,7 +236,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			function ( &$username ) use ( $replacepatterns ) {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
 					# If $pattern is no regex, create one from it.
-					if ( @preg_match( $pattern, null ) === false ) {
+					if ( preg_match( $pattern, null ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
@@ -248,7 +250,6 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 				return true;
 			}
 		);
-
 	}
 
 	/**
@@ -259,13 +260,12 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * expression too.
 	 *
 	 * @param string[] $names List of names to match remote user name against.
-	 * @param boolean $allow Either allow or disallow if name matches.
+	 * @param bool $allow Either allow or disallow if name matches.
 	 * @throws UnexpectedValueException Wrong parameter type given.
 	 * @see preg_match()
 	 * @since 2.0.0
 	 */
 	public function setUserNameMatchFilter( $names, $allow ) {
-
 		if ( !is_array( $names ) ) {
 			throw new UnexpectedValueException( __METHOD__ . ' expects an array as parameter.' );
 		}
@@ -280,7 +280,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 				}
 				foreach ( $names as $pattern ) {
 					# If $pattern is no regex, create one from it.
-					if ( @preg_match( $pattern, null ) === false ) {
+					if ( preg_match( $pattern, null ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
@@ -292,8 +292,6 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 				return !$allow;
 			}
 		);
-
 	}
 
 }
-
