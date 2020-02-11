@@ -2,7 +2,7 @@
 	"name": "Auth_remoteuser",
 	"version": "2.1.1",
 	"requires": {
-		"MediaWiki": ">= 1.27.0"
+		"MediaWiki": ">= 1.31.0"
 	},
 	"config": {
 		"_prefix": "wgAuthRemoteuser",

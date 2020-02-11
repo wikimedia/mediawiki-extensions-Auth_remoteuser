@@ -235,12 +235,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			static::HOOKNAME,
 			function ( &$username ) use ( $replacepatterns ) {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
+					\Wikimedia\suppressWarnings();
 					# If $pattern is no regex, create one from it.
 					if ( preg_match( $pattern, null ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
 					}
+					\Wikimedia\restoreWarnings();
 					$replaced = preg_replace( $pattern, $replacement, $username );
 					if ( null === $replaced ) {
 						return false;
@@ -279,12 +281,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 					return $allow;
 				}
 				foreach ( $names as $pattern ) {
+					\Wikimedia\suppressWarnings();
 					# If $pattern is no regex, create one from it.
 					if ( preg_match( $pattern, null ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
 					}
+					\Wikimedia\restoreWarnings();
 					if ( preg_match( $pattern, $username ) ) {
 						return $allow;
 					}
