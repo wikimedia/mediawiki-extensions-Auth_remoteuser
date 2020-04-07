@@ -1,8 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Liuxinyu970226",
-			"Cwlin0416"
+			"Cwlin0416",
+			"Liuxinyu970226"
 		]
 	},
 	"auth_remoteuser-desc": "使用 <code>REMOTE_USER</code> 環境變數自動登入使用者"
