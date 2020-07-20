@@ -5,17 +5,36 @@
 		"MediaWiki": ">= 1.31.0"
 	},
 	"config": {
-		"_prefix": "wgAuthRemoteuser",
-		"UserName": null,
-		"UserNameReplaceFilter": null,
-		"UserNameBlacklistFilter": null,
-		"UserNameWhitelistFilter": null,
-		"UserPrefs": null,
-		"UserPrefsForced": null,
-		"UserUrls": null,
-		"AllowUserSwitch": false,
-		"RemoveAuthPagesAndLinks": true,
-		"Priority": 50
+		"AuthRemoteuserUserName": {
+			"value": null
+		},
+		"AuthRemoteuserUserNameReplaceFilter": {
+			"value": null
+		},
+		"AuthRemoteuserUserNameBlacklistFilter": {
+			"value": null
+		},
+		"AuthRemoteuserUserNameWhitelistFilter": {
+			"value": null
+		},
+		"AuthRemoteuserUserPrefs": {
+			"value": null
+		},
+		"AuthRemoteuserUserPrefsForced": {
+			"value": null
+		},
+		"AuthRemoteuserUserUrls": {
+			"value": null
+		},
+		"AuthRemoteuserAllowUserSwitch": {
+			"value": false
+		},
+		"AuthRemoteuserRemoveAuthPagesAndLinks": {
+			"value": true
+		},
+		"AuthRemoteuserPriority": {
+			"value": 50
+		}
 	},
 	"type": "other",
 	"author": [
@@ -44,5 +63,5 @@
 		"MediaWiki\\Extension\\Auth_remoteuser\\UserNameSessionProvider": "src/UserNameSessionProvider.php",
 		"MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider": "src/AuthRemoteuserSessionProvider.php"
 	},
-	"manifest_version": 1
+	"manifest_version": 2
 }
