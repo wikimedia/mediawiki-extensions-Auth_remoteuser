@@ -112,7 +112,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * Indicates if the automatically logged-in user can switch to another local
 	 * MediaWiki account while still beeing identified by the remote user name.
 	 *
-	 * @var boolean
+	 * @var bool
 	 * @since 2.0.0
 	 */
 	protected $switchUser;
@@ -120,7 +120,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	/**
 	 * Indicates if special pages related to authentication getting removed by us.
 	 *
-	 * @var boolean
+	 * @var bool
 	 * @since 2.0.0
 	 */
 	protected $removeAuthPagesAndLinks;
@@ -140,7 +140,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * Determines whether to run the `UserLoggedIn` hook after a session has
 	 * been created.
 	 *
-	 * @var boolean
+	 * @var bool
 	 * @since 2.0.1
 	 */
 	protected $callUserLoggedInHook = false;
@@ -794,8 +794,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * * `canonicalUserNameUsed` - the user name used for the current session
 	 *
 	 * @param User $user
-	 * @param Array $preferences
-	 * @param Array $metadata
+	 * @param array $preferences
+	 * @param array $metadata
 	 * @param bool $saveToDB Save changes to database with this function call.
 	 * @see User::setRealName()
 	 * @see User::setEmail()
