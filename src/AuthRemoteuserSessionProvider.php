@@ -94,14 +94,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		}
 
 		if ( $conf->has( 'UserNameReplaceFilter' ) &&
-			null !== $conf->get( 'UserNameReplaceFilter' ) ) {
+			$conf->get( 'UserNameReplaceFilter' ) !== null ) {
 			$this->setUserNameReplaceFilter(
 				$conf->get( 'UserNameReplaceFilter' )
 			);
 		}
 
 		if ( $conf->has( 'UserNameBlacklistFilter' ) &&
-			null !== $conf->get( 'UserNameBlacklistFilter' ) ) {
+			$conf->get( 'UserNameBlacklistFilter' ) !== null ) {
 			$this->setUserNameMatchFilter(
 				$conf->get( 'UserNameBlacklistFilter' ),
 				false
@@ -109,7 +109,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		}
 
 		if ( $conf->has( 'UserNameWhitelistFilter' ) &&
-			null !== $conf->get( 'UserNameWhitelistFilter' ) ) {
+			$conf->get( 'UserNameWhitelistFilter' ) !== null ) {
 			$this->setUserNameMatchFilter(
 				$conf->get( 'UserNameWhitelistFilter' ),
 				true
@@ -244,7 +244,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 					}
 					\Wikimedia\restoreWarnings();
 					$replaced = preg_replace( $pattern, $replacement, $username );
-					if ( null === $replaced ) {
+					if ( $replaced === null ) {
 						return false;
 					}
 					$username = $replaced;

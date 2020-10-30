@@ -652,7 +652,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 				function ( $user, &$prefs ) use ( $keys ) {
 					foreach ( $keys as $key ) {
 
-						if ( 'email' === $key ) {
+						if ( $key === 'email' ) {
 							$key = 'emailaddress';
 						}
 
@@ -663,7 +663,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 						# Email preference needs special treatment, because it will display a
 						# link to change the address. We have to replace that with the address
 						# only.
-						if ( 'emailaddress' === $key ) {
+						if ( $key === 'emailaddress' ) {
 							$prefs[ $key ][ 'default' ] = $user->getEmail() ?
 								htmlspecialchars( $user->getEmail() ) : '';
 						}
