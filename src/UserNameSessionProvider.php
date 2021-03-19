@@ -314,8 +314,8 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# user name for the wiki, either blacklisted or contains invalid characters
 			# or is an ip address.
 			#
-			# @see User::getCanonicalName()
-			# @see User::isUsableName()
+			# @see UserNameUtils::getCanonical()
+			# @see UserNameUtils::isUsable()
 			# @see Title::newFromText()
 			try {
 				$userInfo = UserInfo::newFromName( $filteredUserName, true );
