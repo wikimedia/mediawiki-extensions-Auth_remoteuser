@@ -28,6 +28,7 @@ namespace MediaWiki\Extension\Auth_remoteuser;
 
 use Closure;
 use Hooks;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
 use MediaWiki\Session\SessionInfo;
@@ -799,7 +800,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @param bool $saveToDB Save changes to database with this function call.
 	 * @see User::setRealName()
 	 * @see User::setEmail()
-	 * @see User::setOption()
+	 * @see UserOptionsManager::setOption()
 	 * @since 2.0.0
 	 */
 	public function setUserPrefs( $user, $preferences, $metadata, $saveToDB = false ) {
@@ -833,7 +834,14 @@ class UserNameSessionProvider extends CookieSessionProvider {
 					default:
 						if ( $value != $user->getOption( $option ) ) {
 							$dirty = true;
-							$user->setOption( $option, $value );
+							$services = MediaWikiServices::getInstance();
+							if ( method_exists( $services, 'getUserOptionsManager' ) ) {
+								// MW 1.35 +
+								$services->getUserOptionsManager()
+									->setOption( $user, $option, $value );
+							} else {
+								$user->setOption( $option, $value );
+							}
 						}
 				}
 			}
