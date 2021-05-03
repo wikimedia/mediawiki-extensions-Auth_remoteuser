@@ -547,7 +547,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			if ( $this->canChangeUser() ) {
 				Hooks::register(
 					'UserLogout',
-					function () use ( $url, $metadata, $switchedUser ) {
+					static function () use ( $url, $metadata, $switchedUser ) {
 						if ( $url instanceof Closure ) {
 							$url = call_user_func( $url, $metadata );
 						}
@@ -566,7 +566,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 						}
 						Hooks::register(
 							'UserLogoutComplete',
-							function () use ( $url ) {
+							static function () use ( $url ) {
 								global $wgOut;
 								$wgOut->redirect( $url );
 								return true;
@@ -578,7 +578,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			} else {
 				Hooks::register(
 					'PersonalUrls',
-					function ( &$personalurls ) use ( $url, $metadata ) {
+					static function ( &$personalurls ) use ( $url, $metadata ) {
 						if ( $url instanceof Closure ) {
 							$url = call_user_func( $url, $metadata );
 						}
@@ -650,7 +650,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$keys = array_keys( $preferences );
 			Hooks::register(
 				'GetPreferences',
-				function ( $user, &$prefs ) use ( $keys ) {
+				static function ( $user, &$prefs ) use ( $keys ) {
 					foreach ( $keys as $key ) {
 
 						if ( $key === 'email' ) {
@@ -684,7 +684,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 
 		Hooks::register(
 			'SpecialPage_initList',
-			function ( &$specials ) use ( $disableSpecialPages ) {
+			static function ( &$specials ) use ( $disableSpecialPages ) {
 				foreach ( $disableSpecialPages as $page => $true ) {
 					if ( $true ) {
 						unset( $specials[ $page ] );
@@ -696,7 +696,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 
 		Hooks::register(
 			'PersonalUrls',
-			function ( &$personalurls ) use ( $disablePersonalUrls ) {
+			static function ( &$personalurls ) use ( $disablePersonalUrls ) {
 				foreach ( $disablePersonalUrls as $url => $true ) {
 					if ( $true ) {
 						unset( $personalurls[ $url ] );
