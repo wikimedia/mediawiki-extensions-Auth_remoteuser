@@ -359,11 +359,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# @see AuthManager::autoCreateUser()
 			if ( $sessionInfo && $userInfo->getUser()->isAnon() ) {
 				$anon = $userInfo->getUser();
-				$permissions = $anon->getGroupPermissions( $anon->getEffectiveGroups() );
-				if (
-					in_array( 'autocreateaccount', $permissions, true )
-					|| in_array( 'createaccount', $permissions, true )
-				) {
+				if ( $anon->isAllowedAny( 'autocreateaccount', 'createaccount' ) ) {
 					$this->logger->warning(
 						"Renew session due to global permission change " .
 						"in (auto) creating new users."
@@ -510,8 +506,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# accounts for all users) and user switching is forbidden. A wiki admin with
 			# this permission can then access this page to create accounts explicitly.
 			$user = $info->getUserInfo()->getUser();
-			$permissions = $user->getGroupPermissions( $user->getEffectiveGroups() );
-			if ( !in_array( 'createaccount', $permissions, true ) ) {
+			if ( !$user->isAllowed( 'createaccount' ) ) {
 				$disableSpecialPages += [ 'CreateAccount' => true ];
 			}
 		}
