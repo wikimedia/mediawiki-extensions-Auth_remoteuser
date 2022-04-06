@@ -28,6 +28,7 @@ namespace MediaWiki\Extension\Auth_remoteuser;
 
 use GlobalVarConfig;
 use Hooks;
+use Wikimedia\AtEase\AtEase;
 
 /**
  * Session provider for the Auth_remoteuser extension.
@@ -235,14 +236,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			static::HOOKNAME,
 			static function ( &$username ) use ( $replacepatterns ) {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
-					\Wikimedia\suppressWarnings();
+					AtEase::suppressWarnings();
 					# If $pattern is no regex, create one from it.
 					if ( preg_match( $pattern, null ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
 					}
-					\Wikimedia\restoreWarnings();
+					AtEase::restoreWarnings();
 					$replaced = preg_replace( $pattern, $replacement, $username );
 					if ( $replaced === null ) {
 						return false;
