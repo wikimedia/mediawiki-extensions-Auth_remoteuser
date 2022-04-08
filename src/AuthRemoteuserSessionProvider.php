@@ -282,14 +282,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 					return $allow;
 				}
 				foreach ( $names as $pattern ) {
-					\Wikimedia\suppressWarnings();
+					AtEase::suppressWarnings();
 					# If $pattern is no regex, create one from it.
 					if ( preg_match( $pattern, null ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
 					}
-					\Wikimedia\restoreWarnings();
+					AtEase::restoreWarnings();
 					if ( preg_match( $pattern, $username ) ) {
 						return $allow;
 					}
