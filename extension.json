@@ -2,7 +2,7 @@
 	"name": "Auth_remoteuser",
 	"version": "2.1.1",
 	"requires": {
-		"MediaWiki": ">= 1.34.0"
+		"MediaWiki": ">= 1.35.0"
 	},
 	"config": {
 		"AuthRemoteuserUserName": {
