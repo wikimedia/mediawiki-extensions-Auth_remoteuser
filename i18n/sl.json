@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Eleassar"
+		]
+	},
+	"auth_remoteuser-desc": "Samodejno prijavi uporabnike s spremenljivko okolja <code>REMOTE_USER</code>"
+}
