@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Nokeoo"
+		]
+	},
+	"auth_remoteuser-desc": "Automatiškai prijungia naudotojus naudojaNT aplinkos kintamąjį <code>REMOTE_USER</code>"
+}
