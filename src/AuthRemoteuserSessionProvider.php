@@ -27,7 +27,7 @@
 namespace MediaWiki\Extension\Auth_remoteuser;
 
 use GlobalVarConfig;
-use Hooks;
+use MediaWiki\MediaWikiServices;
 use Wikimedia\AtEase\AtEase;
 
 /**
@@ -232,7 +232,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			throw new UnexpectedValueException( __METHOD__ . ' expects an array as parameter.' );
 		}
 
-		Hooks::register(
+		MediaWikiServices::getInstance()->getHookContainer()->register(
 			static::HOOKNAME,
 			static function ( &$username ) use ( $replacepatterns ) {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
@@ -275,7 +275,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 
 		$allow = (bool)$allow;
 
-		Hooks::register(
+		MediaWikiServices::getInstance()->getHookContainer()->register(
 			static::HOOKNAME,
 			static function ( &$username ) use ( $names, $allow ) {
 				if ( isset( $names[ $username ] ) ) {

@@ -27,7 +27,6 @@
 namespace MediaWiki\Extension\Auth_remoteuser;
 
 use Closure;
-use Hooks;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
@@ -260,6 +259,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @since 2.0.0
 	 */
 	public function provideSessionInfo( WebRequest $request ) {
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		# Loop through user names given by all remote sources. First hit, which
 		# matches a usable local user name, will be used for our SessionInfo then.
 		foreach ( $this->remoteUserNames as $remoteUserName ) {
@@ -286,7 +286,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# returning false. This can be used by the wiki administrator to adjust
 			# this SessionProvider to his specific needs.
 			$filteredUserName = $remoteUserName;
-			if ( !Hooks::run( static::HOOKNAME, [ &$filteredUserName ] ) ) {
+			if ( !$hookContainer->run( static::HOOKNAME, [ &$filteredUserName ] ) ) {
 				$metadata[ 'filteredUserName' ] = $filteredUserName;
 				$this->logger->warning(
 					"Can't login remote user '{remoteUserName}' automatically. " .
@@ -525,6 +525,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$wgHiddenPrefs[] = 'password';
 		}
 
+		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		# Redirect to given remote logout url. Either by redirect after a normal
 		# logout request to Special:UserLogout or by replacing the url in the logout
 		# button when user switching is not allowed and therefore the special page for
@@ -540,9 +541,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		if ( $this->userUrls && isset( $this->userUrls[ 'logout' ] ) ) {
 			$url = $this->userUrls[ 'logout' ];
 			if ( $this->canChangeUser() ) {
-				Hooks::register(
+				$hookContainer->register(
 					'UserLogout',
-					static function () use ( $url, $metadata, $switchedUser ) {
+					static function () use ( $url, $metadata, $switchedUser, $hookContainer ) {
 						if ( $url instanceof Closure ) {
 							$url = call_user_func( $url, $metadata );
 						}
@@ -559,7 +560,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 							}
 							return false;
 						}
-						Hooks::register(
+						$hookContainer->register(
 							'UserLogoutComplete',
 							static function () use ( $url ) {
 								global $wgOut;
@@ -571,7 +572,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 					}
 				);
 			} else {
-				Hooks::register(
+				$hookContainer->register(
 					'PersonalUrls',
 					static function ( &$personalurls ) use ( $url, $metadata ) {
 						if ( $url instanceof Closure ) {
@@ -601,7 +602,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			if ( $this->userPrefs ) {
 				$prefs += $this->userPrefs;
 			}
-			Hooks::register(
+			$hookContainer->register(
 				'LocalUserCreated',
 				function ( $user, $autoCreated ) use ( $prefs, $metadata ) {
 					if ( $autoCreated ) {
@@ -643,7 +644,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# `$wgHiddenPrefs`, because we still want them to be shown to the user.
 			# Therefore use the according hook to disable their editing capabilities.
 			$keys = array_keys( $preferences );
-			Hooks::register(
+			$hookContainer->register(
 				'GetPreferences',
 				static function ( $user, &$prefs ) use ( $keys ) {
 					foreach ( $keys as $key ) {
@@ -677,7 +678,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$disablePersonalUrls = [];
 		}
 
-		Hooks::register(
+		$hookContainer->register(
 			'SpecialPage_initList',
 			static function ( &$specials ) use ( $disableSpecialPages ) {
 				foreach ( $disableSpecialPages as $page => $true ) {
@@ -689,7 +690,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			}
 		);
 
-		Hooks::register(
+		$hookContainer->register(
 			'PersonalUrls',
 			static function ( &$personalurls ) use ( $disablePersonalUrls ) {
 				foreach ( $disablePersonalUrls as $url => $true ) {
@@ -720,7 +721,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# @see \Wikimedia\ScopedCallback::consume() for MW >=REL1.28
 			$delay = null;
 
-			Hooks::run( 'UserLoggedIn', [ $info->getUserInfo()->getUser() ] );
+			$hookContainer->run( 'UserLoggedIn', [ $info->getUserInfo()->getUser() ] );
 
 		}
 
