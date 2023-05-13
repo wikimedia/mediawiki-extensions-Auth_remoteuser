@@ -572,19 +572,20 @@ class UserNameSessionProvider extends CookieSessionProvider {
 				);
 			} else {
 				Hooks::register(
-					'PersonalUrls',
-					static function ( &$personalurls ) use ( $url, $metadata ) {
+					'SkinTemplateNavigation::Universal',
+					static function ( $sktemplate, &$links ) use ( $url, $metadata ) {
 						if ( $url instanceof Closure ) {
 							$url = call_user_func( $url, $metadata );
 						}
 						$internal = Title::newFromText( $url );
+						$personalurls = &$links['user-menu'];
 
 						if ( $internal && $internal->isKnown() ) {
 							$url = $internal->getLinkURL();
 						}
 						$personalurls[ 'logout' ] = [
 							'href' => $url,
-							'text' => wfMessage( 'pt-userlogout' )->text(),
+							'text' => $sktemplate->msg( 'pt-userlogout' )->text(),
 							'active' => false
 						];
 						return true;
@@ -690,8 +691,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		);
 
 		Hooks::register(
-			'PersonalUrls',
-			static function ( &$personalurls ) use ( $disablePersonalUrls ) {
+			'SkinTemplateNavigation::Universal',
+			static function ( $sktemplate, &$links ) use ( $disablePersonalUrls ) {
+				$personalurls = &$links['user-menu'];
 				foreach ( $disablePersonalUrls as $url => $true ) {
 					if ( $true ) {
 						unset( $personalurls[ $url ] );
