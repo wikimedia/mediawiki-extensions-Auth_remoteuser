@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Aefgh39622"
+		]
+	},
+	"auth_remoteuser-desc": "นำผู้ใช้เข้าสู่ระบบโดยอัตโนมัติโดยใช้ตัวแปรสภาพแวดล้อม <code>REMOTE_USER</code>"
+}
