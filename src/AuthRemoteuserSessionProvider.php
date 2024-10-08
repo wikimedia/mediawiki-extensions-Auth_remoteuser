@@ -27,7 +27,7 @@
 namespace MediaWiki\Extension\Auth_remoteuser;
 
 use GlobalVarConfig;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\HookContainer\HookContainer;
 use Wikimedia\AtEase\AtEase;
 
 /**
@@ -44,6 +44,8 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * @since 2.0.0
 	 */
 	public const HOOKNAME = "AuthRemoteuserFilterUserName";
+
+	private HookContainer $hookContainer;
 
 	/**
 	 * The constructor processes the extension configuration.
@@ -69,10 +71,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * * `$wgAuthRemoteuserRemoveAuthPagesAndLinks`
 	 * * `$wgAuthRemoteuserPriority`
 	 *
+	 * @param HookContainer $hookContainer
 	 * @param array $params Session Provider parameters.
 	 * @since 2.0.0
 	 */
-	public function __construct( $params = [] ) {
+	public function __construct(
+		HookContainer $hookContainer,
+		$params = []
+	) {
 		# Process our extension specific configuration, but don't overwrite our
 		# parents `$this->config` property, because doing so will clash with the
 		# SessionManager setting of that property due to a different prefix used.
@@ -213,6 +219,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		}
 
 		parent::__construct( $params );
+		$this->hookContainer = $hookContainer;
 	}
 
 	/**
@@ -232,7 +239,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			throw new UnexpectedValueException( __METHOD__ . ' expects an array as parameter.' );
 		}
 
-		MediaWikiServices::getInstance()->getHookContainer()->register(
+		$this->hookContainer->register(
 			static::HOOKNAME,
 			static function ( &$username ) use ( $replacepatterns ) {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
@@ -275,7 +282,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 
 		$allow = (bool)$allow;
 
-		MediaWikiServices::getInstance()->getHookContainer()->register(
+		$this->hookContainer->register(
 			static::HOOKNAME,
 			static function ( &$username ) use ( $names, $allow ) {
 				if ( isset( $names[ $username ] ) ) {

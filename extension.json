@@ -56,7 +56,10 @@
 	"license-name": "GPL-2.0-or-later",
 	"SessionProviders": {
 		"Auth_remoteuser": {
-			"class": "MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider"
+			"class": "MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider",
+			"services": [
+				"HookContainer"
+			]
 		}
 	},
 	"AutoloadClasses": {
