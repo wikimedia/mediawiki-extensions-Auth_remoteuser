@@ -25,7 +25,7 @@
  * @file
  */
 
-namespace MediaWiki\Extension\Auth_remoteuser;
+namespace MediaWiki\Extension\AuthRemoteuser;
 
 use Config;
 use GlobalVarConfig;

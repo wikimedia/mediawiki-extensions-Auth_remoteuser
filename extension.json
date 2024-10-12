@@ -1,8 +1,8 @@
 {
 	"name": "Auth_remoteuser",
-	"version": "2.1.1",
+	"version": "3.0.0",
 	"requires": {
-		"MediaWiki": ">= 1.39.0"
+		"MediaWiki": ">= 1.45.0"
 	},
 	"config": {
 		"AuthRemoteuserUserName": {
@@ -56,7 +56,7 @@
 	"license-name": "GPL-2.0-or-later",
 	"SessionProviders": {
 		"Auth_remoteuser": {
-			"class": "MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider",
+			"class": "MediaWiki\\Extension\\AuthRemoteuser\\AuthRemoteuserSessionProvider",
 			"services": [
 				"MainConfig",
 				"HookContainer",
@@ -64,9 +64,8 @@
 			]
 		}
 	},
-	"AutoloadClasses": {
-		"MediaWiki\\Extension\\Auth_remoteuser\\UserNameSessionProvider": "src/UserNameSessionProvider.php",
-		"MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider": "src/AuthRemoteuserSessionProvider.php"
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\AuthRemoteuser\\": "src/"
 	},
 	"manifest_version": 2
 }
