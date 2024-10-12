@@ -27,7 +27,9 @@
 namespace MediaWiki\Extension\Auth_remoteuser;
 
 use Closure;
+use Config;
 use MediaWiki\HookContainer\HookContainer;
+use MediaWiki\MainConfigNames;
 use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
 use MediaWiki\Session\SessionInfo;
@@ -163,12 +165,14 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * * `switchUser` - @see self::$switchUser
 	 * * `removeAuthPagesAndLinks` - @see self::$removeAuthPagesAndLinks
 	 *
+	 * @param Config $config
 	 * @param HookContainer $hookContainer
 	 * @param UserOptionsManager $userOptionsManager
 	 * @param array $params Session Provider parameters.
 	 * @since 2.0.0
 	 */
 	public function __construct(
+		Config $config,
 		HookContainer $hookContainer,
 		UserOptionsManager $userOptionsManager,
 		$params = []
@@ -249,13 +253,14 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		# instances where a subclass of our own is used as another session provider).
 		#
 		# @see https://tools.ietf.org/html/rfc6265#section-6.1
-		global $wgSessionName, $wgCookiePrefix;
+		$sessionName = $config->get( MainConfigNames::SessionName );
+		$cookiePrefix = $config->get( MainConfigNames::CookiePrefix );
 		$providerprefix = dechex( crc32( get_class( $this ) ) );
 		$params += [
-			'sessionName' => $wgSessionName ?: ( $wgCookiePrefix . $providerprefix . '_session' ),
+			'sessionName' => $sessionName ?: ( $cookiePrefix . $providerprefix . '_session' ),
 			'cookieOptions' => []
 		];
-		$params[ 'cookieOptions' ] += [ 'prefix' => $wgCookiePrefix ];
+		$params[ 'cookieOptions' ] += [ 'prefix' => $cookiePrefix ];
 		$params[ 'cookieOptions' ][ 'prefix' ] .= $providerprefix;
 
 		# Let our parent sanitize the rest of the configuration.

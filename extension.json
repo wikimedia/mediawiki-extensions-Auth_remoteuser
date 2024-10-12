@@ -2,7 +2,7 @@
 	"name": "Auth_remoteuser",
 	"version": "2.1.1",
 	"requires": {
-		"MediaWiki": ">= 1.35.0"
+		"MediaWiki": ">= 1.39.0"
 	},
 	"config": {
 		"AuthRemoteuserUserName": {
@@ -58,6 +58,7 @@
 		"Auth_remoteuser": {
 			"class": "MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider",
 			"services": [
+				"MainConfig",
 				"HookContainer",
 				"UserOptionsManager"
 			]

@@ -26,6 +26,7 @@
  */
 namespace MediaWiki\Extension\Auth_remoteuser;
 
+use Config;
 use GlobalVarConfig;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\User\UserOptionsManager;
@@ -72,12 +73,14 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * * `$wgAuthRemoteuserRemoveAuthPagesAndLinks`
 	 * * `$wgAuthRemoteuserPriority`
 	 *
+	 * @param Config $config
 	 * @param HookContainer $hookContainer
 	 * @param UserOptionsManager $userOptionsManager
 	 * @param array $params Session Provider parameters.
 	 * @since 2.0.0
 	 */
 	public function __construct(
+		Config $config,
 		HookContainer $hookContainer,
 		UserOptionsManager $userOptionsManager,
 		$params = []
@@ -221,7 +224,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			unset( $params[ 'userPrefs' ] );
 		}
 
-		parent::__construct( $hookContainer, $userOptionsManager, $params );
+		parent::__construct( $config, $hookContainer, $userOptionsManager, $params );
 		$this->hookContainer = $hookContainer;
 	}
 
