@@ -27,11 +27,12 @@
 namespace MediaWiki\Extension\Auth_remoteuser;
 
 use Closure;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
 use MediaWiki\Session\SessionInfo;
 use MediaWiki\Session\UserInfo;
+use MediaWiki\User\UserOptionsManager;
 use Sanitizer;
 use Title;
 use User;
@@ -145,6 +146,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 */
 	protected $callUserLoggedInHook = false;
 
+	private HookContainer $hookContainer;
+	private UserOptionsManager $userOptionsManager;
+
 	/**
 	 * The constructor processes the class configuration.
 	 *
@@ -159,10 +163,19 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * * `switchUser` - @see self::$switchUser
 	 * * `removeAuthPagesAndLinks` - @see self::$removeAuthPagesAndLinks
 	 *
+	 * @param HookContainer $hookContainer
+	 * @param UserOptionsManager $userOptionsManager
 	 * @param array $params Session Provider parameters.
 	 * @since 2.0.0
 	 */
-	public function __construct( $params = [] ) {
+	public function __construct(
+		HookContainer $hookContainer,
+		UserOptionsManager $userOptionsManager,
+		$params = []
+	) {
+		$this->hookContainer = $hookContainer;
+		$this->userOptionsManager = $userOptionsManager;
+
 		# Setup configuration defaults.
 		$defaults = [
 			'remoteUserNames' => [],
@@ -259,7 +272,6 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @since 2.0.0
 	 */
 	public function provideSessionInfo( WebRequest $request ) {
-		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		# Loop through user names given by all remote sources. First hit, which
 		# matches a usable local user name, will be used for our SessionInfo then.
 		foreach ( $this->remoteUserNames as $remoteUserName ) {
@@ -286,7 +298,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# returning false. This can be used by the wiki administrator to adjust
 			# this SessionProvider to his specific needs.
 			$filteredUserName = $remoteUserName;
-			if ( !$hookContainer->run( static::HOOKNAME, [ &$filteredUserName ] ) ) {
+			if ( !$this->hookContainer->run( static::HOOKNAME, [ &$filteredUserName ] ) ) {
 				$metadata[ 'filteredUserName' ] = $filteredUserName;
 				$this->logger->warning(
 					"Can't login remote user '{remoteUserName}' automatically. " .
@@ -525,7 +537,6 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$wgHiddenPrefs[] = 'password';
 		}
 
-		$hookContainer = MediaWikiServices::getInstance()->getHookContainer();
 		# Redirect to given remote logout url. Either by redirect after a normal
 		# logout request to Special:UserLogout or by replacing the url in the logout
 		# button when user switching is not allowed and therefore the special page for
@@ -540,6 +551,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		# therefore we use the `UserLogoutComplete` hook for these type of urls.
 		if ( $this->userUrls && isset( $this->userUrls[ 'logout' ] ) ) {
 			$url = $this->userUrls[ 'logout' ];
+			$hookContainer = $this->hookContainer;
 			if ( $this->canChangeUser() ) {
 				$hookContainer->register(
 					'UserLogout',
@@ -603,7 +615,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			if ( $this->userPrefs ) {
 				$prefs += $this->userPrefs;
 			}
-			$hookContainer->register(
+			$this->hookContainer->register(
 				'LocalUserCreated',
 				function ( $user, $autoCreated ) use ( $prefs, $metadata ) {
 					if ( $autoCreated ) {
@@ -645,7 +657,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# `$wgHiddenPrefs`, because we still want them to be shown to the user.
 			# Therefore use the according hook to disable their editing capabilities.
 			$keys = array_keys( $preferences );
-			$hookContainer->register(
+			$this->hookContainer->register(
 				'GetPreferences',
 				static function ( $user, &$prefs ) use ( $keys ) {
 					foreach ( $keys as $key ) {
@@ -679,7 +691,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			$disablePersonalUrls = [];
 		}
 
-		$hookContainer->register(
+		$this->hookContainer->register(
 			'SpecialPage_initList',
 			static function ( &$specials ) use ( $disableSpecialPages ) {
 				foreach ( $disableSpecialPages as $page => $true ) {
@@ -691,7 +703,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			}
 		);
 
-		$hookContainer->register(
+		$this->hookContainer->register(
 			'SkinTemplateNavigation::Universal',
 			static function ( $sktemplate, &$links ) use ( $disablePersonalUrls ) {
 				$personalurls = &$links['user-menu'];
@@ -723,7 +735,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# @see \Wikimedia\ScopedCallback::consume() for MW >=REL1.28
 			$delay = null;
 
-			$hookContainer->run( 'UserLoggedIn', [ $info->getUserInfo()->getUser() ] );
+			$this->hookContainer->run( 'UserLoggedIn', [ $info->getUserInfo()->getUser() ] );
 
 		}
 
@@ -830,10 +842,9 @@ class UserNameSessionProvider extends CookieSessionProvider {
 						}
 						break;
 					default:
-						$userOptionsManager = MediaWikiServices::getInstance()->getUserOptionsManager();
-						if ( $value != $userOptionsManager->getOption( $user, $option ) ) {
+						if ( $value != $this->userOptionsManager->getOption( $user, $option ) ) {
 							$dirty = true;
-							$userOptionsManager->setOption( $user, $option, $value );
+							$this->userOptionsManager->setOption( $user, $option, $value );
 						}
 				}
 			}

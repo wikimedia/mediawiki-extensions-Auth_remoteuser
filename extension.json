@@ -58,7 +58,8 @@
 		"Auth_remoteuser": {
 			"class": "MediaWiki\\Extension\\Auth_remoteuser\\AuthRemoteuserSessionProvider",
 			"services": [
-				"HookContainer"
+				"HookContainer",
+				"UserOptionsManager"
 			]
 		}
 	},
