@@ -28,6 +28,7 @@ namespace MediaWiki\Extension\Auth_remoteuser;
 
 use Closure;
 use Config;
+use InvalidArgumentException;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\MainConfigNames;
 use MediaWiki\Session\CookieSessionProvider;
@@ -289,7 +290,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# and later for provider metadata.
 			$metadata = [ 'remoteUserName' => (string)$remoteUserName ];
 
-			if ( !is_string( $remoteUserName ) || empty( $remoteUserName ) ) {
+			if ( !is_string( $remoteUserName ) || $remoteUserName === '' ) {
 				$this->logger->warning(
 					"Can't login remote user '{remoteUserName}' automatically. " .
 					"Given remote user name is not of type string or empty.",
@@ -312,9 +313,10 @@ class UserNameSessionProvider extends CookieSessionProvider {
 				);
 				continue;
 			}
+			// @phan-suppress-next-line PhanRedundantConditionInLoop
 			$metadata[ 'filteredUserName' ] = (string)$filteredUserName;
 
-			if ( !is_string( $filteredUserName ) || empty( $filteredUserName ) ) {
+			if ( !is_string( $filteredUserName ) || $filteredUserName === '' ) {
 				$this->logger->warning(
 					"Can't login remote user '{remoteUserName}' automatically. " .
 					"Filtered remote user name '{filteredUserName}' is not of " .
@@ -499,7 +501,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 
 		$disableSpecialPages = [];
 		$disablePersonalUrls = [];
-		$preferences = ( $this->userPrefsForced ) ? $this->userPrefsForced : [];
+		$preferences = $this->userPrefsForced ?: [];
 
 		# Disable any special pages related to user switching.
 		if ( !$this->switchUser ) {
@@ -530,7 +532,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 
 		# This can only be true, if our `switchUser` member is set to true and the
 		# user identified by us uses another local wiki user for this session.
-		$switchedUser = ( $info->getUserInfo()->getId() !== $metadata[ 'userId' ] ) ? true : false;
+		$switchedUser = $info->getUserInfo()->getId() !== $metadata[ 'userId' ];
 
 		# Disable password related special pages and hide preference option.
 		if ( !$switchedUser ) {
@@ -787,6 +789,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 */
 	public function persistSession( SessionBackend $session, WebRequest $request ) {
 		$metadata = $session->getProviderMetadata();
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable TODO Ensure this is not an actual issue
 		$this->remoteToken = $metadata[ 'filteredUserName' ];
 		parent::persistSession( $session, $request );
 	}

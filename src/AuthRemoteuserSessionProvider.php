@@ -30,6 +30,7 @@ use Config;
 use GlobalVarConfig;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\User\UserOptionsManager;
+use UnexpectedValueException;
 use Wikimedia\AtEase\AtEase;
 
 /**
@@ -108,6 +109,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 
 		if ( $conf->has( 'UserNameReplaceFilter' ) &&
 			$conf->get( 'UserNameReplaceFilter' ) !== null ) {
+			// @phan-suppress-next-line SecurityCheck-ReDoS TODO Ensure this is not an actual issue
 			$this->setUserNameReplaceFilter(
 				$conf->get( 'UserNameReplaceFilter' )
 			);
@@ -115,6 +117,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 
 		if ( $conf->has( 'UserNameBlacklistFilter' ) &&
 			$conf->get( 'UserNameBlacklistFilter' ) !== null ) {
+			// @phan-suppress-next-line SecurityCheck-ReDoS TODO Ensure this is not an actual issue
 			$this->setUserNameMatchFilter(
 				$conf->get( 'UserNameBlacklistFilter' ),
 				false
@@ -123,6 +126,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 
 		if ( $conf->has( 'UserNameWhitelistFilter' ) &&
 			$conf->get( 'UserNameWhitelistFilter' ) !== null ) {
+			// @phan-suppress-next-line SecurityCheck-ReDoS TODO Ensure this is not an actual issue
 			$this->setUserNameMatchFilter(
 				$conf->get( 'UserNameWhitelistFilter' ),
 				true
@@ -196,6 +200,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		if ( $conf->has( 'Domain' )
 			&& is_string( $conf->get( 'Domain' ) )
 			&& $conf->get( 'Domain' ) !== '' ) {
+			// @phan-suppress-next-line SecurityCheck-ReDoS TODO Ensure this is not an actual issue
 			$this->setUserNameReplaceFilter( [
 				'@' . $conf->get( 'Domain' ) . '$' => '',
 				'^' . $conf->get( 'Domain' ) . '\\' => ''
@@ -251,7 +256,8 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
 					AtEase::suppressWarnings();
 					# If $pattern is no regex, create one from it.
-					if ( preg_match( $pattern, null ) === false ) {
+					// @phan-suppress-next-line PhanParamSuspiciousOrder
+					if ( preg_match( $pattern, '' ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
@@ -297,7 +303,8 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 				foreach ( $names as $pattern ) {
 					AtEase::suppressWarnings();
 					# If $pattern is no regex, create one from it.
-					if ( preg_match( $pattern, null ) === false ) {
+					// @phan-suppress-next-line PhanParamSuspiciousOrder
+					if ( preg_match( $pattern, '' ) === false ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
