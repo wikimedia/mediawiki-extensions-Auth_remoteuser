@@ -30,7 +30,6 @@ use Config;
 use GlobalVarConfig;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\User\UserOptionsManager;
-use UnexpectedValueException;
 use Wikimedia\AtEase\AtEase;
 
 /**
@@ -84,7 +83,7 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		Config $config,
 		HookContainer $hookContainer,
 		UserOptionsManager $userOptionsManager,
-		$params = []
+		array $params = []
 	) {
 		# Process our extension specific configuration, but don't overwrite our
 		# parents `$this->config` property, because doing so will clash with the
@@ -241,15 +240,10 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 * patterns.
 	 *
 	 * @param array $replacepatterns Array of search and replace patterns.
-	 * @throws UnexpectedValueException Wrong parameter type given.
 	 * @see preg_replace()
 	 * @since 2.0.0
 	 */
-	public function setUserNameReplaceFilter( $replacepatterns ) {
-		if ( !is_array( $replacepatterns ) ) {
-			throw new UnexpectedValueException( __METHOD__ . ' expects an array as parameter.' );
-		}
-
+	public function setUserNameReplaceFilter( array $replacepatterns ): void {
 		$this->hookContainer->register(
 			static::HOOKNAME,
 			static function ( &$username ) use ( $replacepatterns ) {
@@ -283,17 +277,10 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 	 *
 	 * @param string[] $names List of names to match remote user name against.
 	 * @param bool $allow Either allow or disallow if name matches.
-	 * @throws UnexpectedValueException Wrong parameter type given.
 	 * @see preg_match()
 	 * @since 2.0.0
 	 */
-	public function setUserNameMatchFilter( $names, $allow ) {
-		if ( !is_array( $names ) ) {
-			throw new UnexpectedValueException( __METHOD__ . ' expects an array as parameter.' );
-		}
-
-		$allow = (bool)$allow;
-
+	public function setUserNameMatchFilter( array $names, bool $allow ): void {
 		$this->hookContainer->register(
 			static::HOOKNAME,
 			static function ( &$username ) use ( $names, $allow ) {

@@ -76,7 +76,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @var string[]
 	 * @since 2.0.0
 	 */
-	protected $remoteUserNames;
+	protected array $remoteUserNames;
 
 	/**
 	 * User preferences applied in the moment of local account creation only.
@@ -88,29 +88,29 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * * `realname` - Specifies the users real (display) name.
 	 * * `email` - Specifies the users email address.
 	 *
-	 * @var array
+	 * @var array|null
 	 * @since 2.0.0
 	 */
-	protected $userPrefs;
+	protected ?array $userPrefs;
 
 	/**
 	 * User preferences applied to the user object on each request.
 	 *
 	 * @see self::$userPrefs
-	 * @var array
+	 * @var array|null
 	 * @since 2.0.0
 	 */
-	protected $userPrefsForced;
+	protected ?array $userPrefsForced;
 
 	/**
 	 * Urls in links which differ from the default ones. The following keys are
 	 * supported in this associative array:
 	 * * 'logout' - Redirect to this url on logout.
 	 *
-	 * @var array
+	 * @var array|null
 	 * @since 2.0.0
 	 */
-	protected $userUrls;
+	protected ?array $userUrls;
 
 	/**
 	 * Indicates if the automatically logged-in user can switch to another local
@@ -119,7 +119,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @var bool
 	 * @since 2.0.0
 	 */
-	protected $switchUser;
+	protected bool $switchUser;
 
 	/**
 	 * Indicates if special pages related to authentication getting removed by us.
@@ -127,7 +127,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @var bool
 	 * @since 2.0.0
 	 */
-	protected $removeAuthPagesAndLinks;
+	protected bool $removeAuthPagesAndLinks;
 
 	/**
 	 * A token unique to the remote source session.
@@ -138,7 +138,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @var string
 	 * @since 2.0.0
 	 */
-	protected $remoteToken;
+	protected string $remoteToken;
 
 	/**
 	 * Determines whether to run the `UserLoggedIn` hook after a session has
@@ -147,7 +147,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @var bool
 	 * @since 2.0.1
 	 */
-	protected $callUserLoggedInHook = false;
+	protected bool $callUserLoggedInHook = false;
 
 	private HookContainer $hookContainer;
 	private UserOptionsManager $userOptionsManager;
@@ -176,7 +176,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		Config $config,
 		HookContainer $hookContainer,
 		UserOptionsManager $userOptionsManager,
-		$params = []
+		array $params = []
 	) {
 		$this->hookContainer = $hookContainer;
 		$this->userOptionsManager = $userOptionsManager;
@@ -277,7 +277,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @return ?SessionInfo
 	 * @since 2.0.0
 	 */
-	public function provideSessionInfo( WebRequest $request ) {
+	public function provideSessionInfo( WebRequest $request ): ?SessionInfo {
 		# Loop through user names given by all remote sources. First hit, which
 		# matches a usable local user name, will be used for our SessionInfo then.
 		foreach ( $this->remoteUserNames as $remoteUserName ) {
@@ -462,7 +462,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @return array
 	 * @since 2.0.0
 	 */
-	public function mergeMetadata( array $savedMetadata, array $providedMetadata ) {
+	public function mergeMetadata( array $savedMetadata, array $providedMetadata ): array {
 		$keys = [
 			'userId',
 			'remoteUserName',
@@ -763,7 +763,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @return bool
 	 * @since 2.0.0
 	 */
-	public function canChangeUser() {
+	public function canChangeUser(): bool {
 		return ( $this->switchUser ) ? parent::canChangeUser() : false;
 	}
 
@@ -787,7 +787,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @param WebRequest $request The WebRequest.
 	 * @since 2.0.0
 	 */
-	public function persistSession( SessionBackend $session, WebRequest $request ) {
+	public function persistSession( SessionBackend $session, WebRequest $request ): void {
 		$metadata = $session->getProviderMetadata();
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable TODO Ensure this is not an actual issue
 		$this->remoteToken = $metadata[ 'filteredUserName' ];
@@ -821,46 +821,43 @@ class UserNameSessionProvider extends CookieSessionProvider {
 	 * @see UserOptionsManager::setOption()
 	 * @since 2.0.0
 	 */
-	public function setUserPrefs( $user, $preferences, $metadata, $saveToDB = false ) {
-		if ( $user instanceof User && is_array( $preferences ) && is_array( $metadata ) ) {
+	public function setUserPrefs( User $user, array $preferences, array $metadata, bool $saveToDB = false ): void {
+		# Mark changes to prevent superfluous database writings.
+		$dirty = false;
 
-			# Mark changes to prevent superfluous database writings.
-			$dirty = false;
+		foreach ( $preferences as $option => $value ) {
 
-			foreach ( $preferences as $option => $value ) {
-
-				# If the given value is a closure, call it to get the value. All of our
-				# provider metadata is exposed to this function as first parameter.
-				if ( $value instanceof Closure ) {
-					$value = call_user_func( $value, $metadata );
-				}
-
-				switch ( $option ) {
-					case 'realname':
-						if ( is_string( $value ) && $value !== $user->getRealName() ) {
-							$dirty = true;
-							$user->setRealName( $value );
-						}
-						break;
-					case 'email':
-						if ( Sanitizer::validateEmail( $value ) && $value !== $user->getEmail() ) {
-							$dirty = true;
-							$user->setEmail( $value );
-							$user->confirmEmail();
-						}
-						break;
-					default:
-						if ( $value != $this->userOptionsManager->getOption( $user, $option ) ) {
-							$dirty = true;
-							$this->userOptionsManager->setOption( $user, $option, $value );
-						}
-				}
+			# If the given value is a closure, call it to get the value. All of our
+			# provider metadata is exposed to this function as first parameter.
+			if ( $value instanceof Closure ) {
+				$value = call_user_func( $value, $metadata );
 			}
 
-			# Only update database if something has changed.
-			if ( $saveToDB && $dirty ) {
-				$user->saveSettings();
+			switch ( $option ) {
+				case 'realname':
+					if ( is_string( $value ) && $value !== $user->getRealName() ) {
+						$dirty = true;
+						$user->setRealName( $value );
+					}
+					break;
+				case 'email':
+					if ( Sanitizer::validateEmail( $value ) && $value !== $user->getEmail() ) {
+						$dirty = true;
+						$user->setEmail( $value );
+						$user->confirmEmail();
+					}
+					break;
+				default:
+					if ( $value != $this->userOptionsManager->getOption( $user, $option ) ) {
+						$dirty = true;
+						$this->userOptionsManager->setOption( $user, $option, $value );
+					}
 			}
+		}
+
+		# Only update database if something has changed.
+		if ( $saveToDB && $dirty ) {
+			$user->saveSettings();
 		}
 	}
 
