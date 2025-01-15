@@ -35,9 +35,9 @@ use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
 use MediaWiki\Session\SessionInfo;
 use MediaWiki\Session\UserInfo;
+use MediaWiki\Title\Title;
 use MediaWiki\User\UserOptionsManager;
 use Sanitizer;
-use Title;
 use User;
 use WebRequest;
 
