@@ -85,6 +85,8 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		UserOptionsManager $userOptionsManager,
 		array $params = []
 	) {
+		$this->hookContainer = $hookContainer;
+
 		# Process our extension specific configuration, but don't overwrite our
 		# parents `$this->config` property, because doing so will clash with the
 		# SessionManager setting of that property due to a different prefix used.
@@ -229,7 +231,6 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 		}
 
 		parent::__construct( $config, $hookContainer, $userOptionsManager, $params );
-		$this->hookContainer = $hookContainer;
 	}
 
 	/**
