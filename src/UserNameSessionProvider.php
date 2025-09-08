@@ -24,6 +24,7 @@
  *
  * @file
  */
+
 namespace MediaWiki\Extension\Auth_remoteuser;
 
 use Closure;
@@ -31,6 +32,7 @@ use Config;
 use InvalidArgumentException;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\MainConfigNames;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Session\CookieSessionProvider;
 use MediaWiki\Session\SessionBackend;
 use MediaWiki\Session\SessionInfo;
@@ -57,7 +59,6 @@ use WebRequest;
  * only.
  *
  * @see CookieSessionProvider::provideSessionInfo()
- * @version 2.1.1
  * @since 2.0.0
  */
 class UserNameSessionProvider extends CookieSessionProvider {
@@ -265,7 +266,11 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		$params[ 'cookieOptions' ][ 'prefix' ] .= $providerprefix;
 
 		# Let our parent sanitize the rest of the configuration.
-		parent::__construct( $params );
+		parent::__construct(
+			MediaWikiServices::getInstance()->getJwtCodec(),
+			MediaWikiServices::getInstance()->getUrlUtils(),
+			$params
+		);
 	}
 
 	/**
