@@ -178,6 +178,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		UserOptionsManager $userOptionsManager,
 		array $params = []
 	) {
+		$this->config = $config;
 		$this->hookContainer = $hookContainer;
 		$this->userOptionsManager = $userOptionsManager;
 
@@ -377,8 +378,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			# @see AuthManager::AutoCreateBlacklist
 			# @see AuthManager::autoCreateUser()
 			if ( $sessionInfo && $userInfo->getUser()->isAnon() ) {
-				$anon = $userInfo->getUser();
-				if ( $anon->isAllowedAny( 'autocreateaccount', 'createaccount' ) ) {
+				if ( $this->anonCanCreateAccount() ) {
 					$this->logger->warning(
 						"Renew session due to global permission change " .
 						"in (auto) creating new users."
@@ -863,6 +863,22 @@ class UserNameSessionProvider extends CookieSessionProvider {
 		if ( $saveToDB && $dirty ) {
 			$user->saveSettings();
 		}
+	}
+
+	/**
+	 * We can not rely on the PermissionManager service to check, because it
+	 * will try to load data from the session, which is not available in this
+	 * context yet, thus leading to a infinite loop.
+	 * Therefore we manually check the configuration options.
+	 * @return bool
+	 */
+	private function anonCanCreateAccount(): bool {
+		$groupPermissions = $this->config->get( MainConfigNames::GroupPermissions );
+		$anonPermissions = $groupPermissions['*'] ?? [];
+		$anonCanAutoCreate = $anonPermissions['autocreateaccount'] ?? false;
+		$anonCanCreate = $anonPermissions['createaccount'] ?? false;
+
+		return $anonCanAutoCreate || $anonCanCreate;
 	}
 
 }
