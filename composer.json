@@ -53,7 +53,7 @@
 		}
 	],
 	"require": {
-		"composer/installers": "~1.0.1"
+		"composer/installers": "^2|^1.0.1"
 	},
 	"require-dev": {
 		"mediawiki/mediawiki-codesniffer": "46.0.0",
