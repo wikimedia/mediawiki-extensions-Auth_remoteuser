@@ -28,7 +28,7 @@
 namespace MediaWiki\Extension\AuthRemoteuser;
 
 use Config;
-use GlobalVarConfig;
+use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\User\UserOptionsManager;
 use Wikimedia\AtEase\AtEase;
