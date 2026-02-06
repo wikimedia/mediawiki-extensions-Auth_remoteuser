@@ -31,7 +31,7 @@ use Config;
 use MediaWiki\Config\GlobalVarConfig;
 use MediaWiki\HookContainer\HookContainer;
 use MediaWiki\User\UserOptionsManager;
-use Wikimedia\AtEase\AtEase;
+use Wikimedia\StringUtils\StringUtils;
 
 /**
  * Session provider for the Auth_remoteuser extension.
@@ -249,15 +249,12 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 			static::HOOKNAME,
 			static function ( &$username ) use ( $replacepatterns ) {
 				foreach ( $replacepatterns as $pattern => $replacement ) {
-					AtEase::suppressWarnings();
 					# If $pattern is no regex, create one from it.
-					// @phan-suppress-next-line PhanParamSuspiciousOrder
-					if ( preg_match( $pattern, '' ) === false ) {
+					if ( !StringUtils::isValidPCRERegex( $pattern ) ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
 					}
-					AtEase::restoreWarnings();
 					$replaced = preg_replace( $pattern, $replacement, $username );
 					if ( $replaced === null ) {
 						return false;
@@ -289,15 +286,12 @@ class AuthRemoteuserSessionProvider extends UserNameSessionProvider {
 					return $allow;
 				}
 				foreach ( $names as $pattern ) {
-					AtEase::suppressWarnings();
 					# If $pattern is no regex, create one from it.
-					// @phan-suppress-next-line PhanParamSuspiciousOrder
-					if ( preg_match( $pattern, '' ) === false ) {
+					if ( !StringUtils::isValidPCRERegex( $pattern ) ) {
 						$pattern = str_replace( '\\', '\\\\', $pattern );
 						$pattern = str_replace( '/', '\\/', $pattern );
 						$pattern = "/$pattern/";
 					}
-					AtEase::restoreWarnings();
 					if ( preg_match( $pattern, $username ) ) {
 						return $allow;
 					}
