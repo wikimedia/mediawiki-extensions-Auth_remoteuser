@@ -724,6 +724,7 @@ class UserNameSessionProvider extends CookieSessionProvider {
 			static function ( $sktemplate, &$links ) use ( $disablePersonalUrls ) {
 				$personalurls = &$links['user-menu'];
 				foreach ( $disablePersonalUrls as $url => $true ) {
+					// @phan-suppress-next-line PhanRedundantConditionInLoop
 					if ( $true ) {
 						unset( $personalurls[ $url ] );
 					}
