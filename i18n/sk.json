@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Wizzard"
+		]
+	},
+	"auth_remoteuser-desc": "Automaticky prihlasuje používateľov pomocou premennej prostredia <code>REMOTE_USER</code>"
+}
