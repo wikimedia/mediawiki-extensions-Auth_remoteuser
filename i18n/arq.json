@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Bachounda"
+		]
+	},
+	"auth_remoteuser-desc": "يدخل المستخدمين تلقائياً باستعمال المتغير البيئي <code>REMOTE_USER</code>."
+}
