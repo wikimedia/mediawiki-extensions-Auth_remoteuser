@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"شاه زمان پټان"
+		]
+	},
+	"auth_remoteuser-desc": "هغه کارنان چې <code>REMOTE_USER</code> چاپېريال اوښتگر کاروي په خپلکاري ډول ثبتوي."
+}
