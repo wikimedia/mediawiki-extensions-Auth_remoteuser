@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Jimkats"
+		]
+	},
+	"auth_remoteuser-desc": "Συνδέει αυτομάτως χρήστες χρησιμοποιώντας τη μεταβλητή περιβάλλοντος <code>REMOTE_USER</code>"
+}
